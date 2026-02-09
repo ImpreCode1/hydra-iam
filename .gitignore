@@ -8,6 +8,7 @@ build/
 # Env files
 .env
 .env.*.local
+.env.docker
 
 # Logs
 npm-debug.log*
