@@ -1,0 +1,36 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
+import { UsersService } from '../users/users.service';
+import { MicrosoftUser } from './interfaces/microsoft-user.interface';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async loginWithMicrosoft(msUser: MicrosoftUser) {
+    const user = await this.usersService.findOrCreateFromMicrosoft(msUser);
+
+    const roleNames =
+      user.roles?.map((ur) => ur.role?.name).filter(Boolean) ?? [];
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      roles: roleNames,
+    };
+
+    // Excluir password del objeto user en la respuesta
+    const { password: _pass, ...userWithoutPassword } = user;
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: userWithoutPassword,
+    };
+  }
+}

@@ -18,13 +18,13 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  password  String   @map("password_hash")
-  isActive Boolean @default(true)
+  password  String?  @map("password_hash") // Opcional para usuarios SSO
+  azureOid  String?  @unique @map("azure_oid") // Para login con Microsoft
+  isActive  Boolean  @default(true)
 
-  positionId String @map("cargo_id")
-  position   Position @relation(fields: [positionId], references: [id])
-  roles UserRole[]
-
+  positionId String? @map("cargo_id") // Opcional para usuarios SSO recién creados
+  position   Position? @relation(fields: [positionId], references: [id])
+  roles      UserRole[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
