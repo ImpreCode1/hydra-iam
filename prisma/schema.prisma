@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -18,17 +18,23 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  password  String?  @map("password_hash") // Opcional para usuarios SSO
-  azureOid  String?  @unique @map("azure_oid") // Para login con Microsoft
-  isActive  Boolean  @default(true)
+  password  String?  @map("password_hash") // Opcional (por si algún día se necesita local)
+  azureOid  String?  @unique @map("azure_oid")
 
-  positionId String? @map("cargo_id") // Opcional para usuarios SSO recién creados
+  isActive  Boolean  @default(true)
+  deletedAt DateTime? @map("deleted_at")
+
+  positionId String? @map("cargo_id")
   position   Position? @relation(fields: [positionId], references: [id])
+
   roles      UserRole[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([email])
+  @@index([azureOid])
+  @@index([positionId])
   @@map("users")
 }
 
@@ -37,11 +43,13 @@ model Position {
   name        String
   description String?
 
+  deletedAt DateTime? @map("deleted_at")
+
   roles PositionRole[]
   users User[]
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("positions")
 }
@@ -51,13 +59,14 @@ model Role {
   name        String   @unique
   description String?
 
+  deletedAt DateTime? @map("deleted_at")
+
   positions PositionRole[]
-  users UserRole[]
+  users     UserRole[]
   platforms PlatformRole[]
 
-
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("roles")
 }
@@ -65,16 +74,19 @@ model Role {
 model Platform {
   id          String   @id @default(uuid())
   name        String
-  code        String
+  code        String   @unique
   description String?
   url         String
-  isActive Boolean @default(true)
+  isActive    Boolean  @default(true)
+
+  deletedAt DateTime? @map("deleted_at")
 
   roles PlatformRole[]
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([code])
   @@map("platforms")
 }
 
