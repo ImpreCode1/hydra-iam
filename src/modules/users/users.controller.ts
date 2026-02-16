@@ -5,20 +5,27 @@ import {
   Patch,
   Body,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { Roles } from '../auth/guards/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   // 🔹 Listar usuarios
+  @Roles('ADMIN')
   @Get()
   async findAll() {
     return this.usersService.findAll();
   }
 
   // 🔹 Obtener usuario por ID
+  @Roles('ADMIN')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findById(id);
@@ -29,6 +36,7 @@ export class UsersController {
   }
 
   // 🔹 Activar / Desactivar usuario
+  @Roles('ADMIN')
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,

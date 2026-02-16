@@ -21,6 +21,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { MicrosoftAuthGuard } from './guards/microsoft-auth.guard';
 
 import { UsersModule } from '../users/users.module';
+import { JwtAuthGuard } from './guards/JwtAuthGuard.guard';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -37,7 +39,14 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, MicrosoftStrategy, JwtStrategy, MicrosoftAuthGuard],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    MicrosoftStrategy,
+    JwtStrategy,
+    MicrosoftAuthGuard,
+    JwtAuthGuard,
+    RolesGuard,
+  ],
+  exports: [AuthService, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}
