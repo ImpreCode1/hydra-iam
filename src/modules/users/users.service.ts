@@ -11,6 +11,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MicrosoftUser } from '../auth/interfaces/microsoft-user.interface';
+import { PositionsService } from '../positions/positions.service';
 
 /** Usuario con roles incluidos para auth */
 export interface UserWithRoles {
@@ -34,48 +35,18 @@ export interface UserWithRoles {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  /**
-   * Busca o crea cargo basado en el jobTitle de Azure AD
-   * Si el cargo no existe, lo crea automáticamente
-   */
-  private async findOrCreatePosition(
-    jobTitle: string | null | undefined,
-  ): Promise<string | null> {
-    if (!jobTitle) return null;
-
-    // Normalizar el nombre del cargo
-    const normalizedJobTitle = jobTitle.trim();
-
-    // Buscar cargo existente
-    let position = await this.prisma.position.findFirst({
-      where: {
-        name: normalizedJobTitle,
-        deletedAt: null,
-      },
-    });
-
-    // Si no existe, crearlo
-    if (!position) {
-      position = await this.prisma.position.create({
-        data: {
-          name: normalizedJobTitle,
-          description: `Cargo sincronizado desde Azure AD`,
-        },
-      });
-    }
-
-    return position.id;
-  }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly positionsService: PositionsService,
+  ) {}
 
   async findOrCreateFromMicrosoft(
     msUser: MicrosoftUser,
   ): Promise<UserWithRoles> {
-    // Buscar o crear el cargo basado en jobTitle de Azure
-    const positionId = await this.findOrCreatePosition(msUser.jobTitle);
+    const positionId = await this.positionsService.findOrCreateByName(
+      msUser.jobTitle,
+    );
 
-    // Buscar por azureOid o por email (usuario existente que inicia sesión con Microsoft)
     let existingUser = await this.prisma.user.findFirst({
       where: {
         OR: [{ azureOid: msUser.azureOid }, { email: msUser.email }],
@@ -87,17 +58,24 @@ export class UsersService {
     });
 
     if (existingUser) {
-      // Actualizar azureOid y cargo si es necesario
+      if (!existingUser.isActive || existingUser.deletedAt) {
+        throw new UnauthorizedException('Usuario desactivado');
+      }
+
       const needsUpdate =
-        !existingUser.azureOid || existingUser.positionId !== positionId;
+        existingUser.azureOid !== msUser.azureOid ||
+        existingUser.positionId !== positionId ||
+        existingUser.name !== msUser.name ||
+        existingUser.email !== msUser.email;
 
       if (needsUpdate) {
         existingUser = await this.prisma.user.update({
           where: { id: existingUser.id },
           data: {
             azureOid: msUser.azureOid,
-            positionId: positionId,
-            name: msUser.name, // Actualizar nombre también por si cambió en Azure
+            positionId,
+            name: msUser.name,
+            email: msUser.email,
           },
           include: {
             roles: { include: { role: true } },
@@ -106,20 +84,15 @@ export class UsersService {
         });
       }
 
-      if (!existingUser.isActive || existingUser.deletedAt) {
-        throw new UnauthorizedException('Usuario desactivado');
-      }
-
       return existingUser as UserWithRoles;
     }
 
-    // Crear nuevo usuario con cargo
-    const newUser = await this.prisma.user.create({
+    return this.prisma.user.create({
       data: {
         name: msUser.name,
         email: msUser.email,
         azureOid: msUser.azureOid,
-        positionId: positionId,
+        positionId,
         isActive: true,
       },
       include: {
@@ -127,7 +100,64 @@ export class UsersService {
         position: true,
       },
     });
+  }
 
-    return newUser as UserWithRoles;
+  async findAll() {
+    return this.prisma.user.findMany({
+      where: { deletedAt: null },
+      include: {
+        position: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        position: true,
+        roles: { include: { role: true } },
+      },
+    });
+  }
+
+  async updateStatus(id: string, isActive: boolean) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: { isActive },
+    });
+  }
+
+  async resolveEffectiveRoles(userId: string): Promise<string[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        roles: { include: { role: true } },
+        position: {
+          include: {
+            roles: { include: { role: true } },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    const directRoles = user.roles.map((r) => r.role.name);
+
+    const positionRoles = user.position?.roles.map((r) => r.role.name) ?? [];
+
+    return [...new Set([...directRoles, ...positionRoles])];
   }
 }
