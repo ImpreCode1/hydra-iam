@@ -8,7 +8,7 @@
  * - Sincroniza cargo desde Azure AD (jobTitle)
  * - Incluye roles con { role: { name } } y position
  */
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MicrosoftUser } from '../auth/interfaces/microsoft-user.interface';
 
@@ -105,6 +105,11 @@ export class UsersService {
           },
         });
       }
+
+      if (!existingUser.isActive || existingUser.deletedAt) {
+        throw new UnauthorizedException('Usuario desactivado');
+      }
+
       return existingUser as UserWithRoles;
     }
 
