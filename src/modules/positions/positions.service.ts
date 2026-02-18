@@ -49,4 +49,33 @@ export class PositionsService {
       },
     });
   }
+
+  async assignRole(positionId: string, roleId: string) {
+    return this.prisma.positionRole.create({
+      data: {
+        positionId,
+        roleId,
+      },
+    });
+  }
+
+  async removeRole(positionId: string, roleId: string) {
+    return this.prisma.positionRole.delete({
+      where: {
+        positionId_roleId: {
+          positionId,
+          roleId,
+        },
+      },
+    });
+  }
+
+  async getRoles(positionId: string) {
+    return this.prisma.positionRole.findMany({
+      where: { positionId },
+      include: {
+        role: true,
+      },
+    });
+  }
 }
