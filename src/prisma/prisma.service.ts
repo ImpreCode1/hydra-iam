@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Servicio de base de datos con Prisma.
  * Extiende PrismaClient con adaptador pg para PostgreSQL.

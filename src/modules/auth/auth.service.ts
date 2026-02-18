@@ -28,20 +28,17 @@ export class AuthService {
       name: user.name,
       roles: roleNames,
       positionId: user.positionId ?? null,
-      position: user.position
-        ? {
-            id: user.position.id,
-            name: user.position.name,
-            description: user.position.description ?? null,
-          }
-        : null,
     };
 
     // Excluir password del objeto user en la respuesta
     const { password: _pass, ...userWithoutPassword } = user;
+    const accessToken = this.jwtService.sign(payload, {
+      issuer: 'hydra-iam',
+      audience: 'internal-platforms',
+    });
 
     return {
-      accessToken: this.jwtService.sign(payload),
+      accessToken,
       user: userWithoutPassword,
     };
   }
