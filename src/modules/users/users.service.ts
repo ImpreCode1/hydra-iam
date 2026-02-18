@@ -9,7 +9,7 @@
  * - Incluye roles con { role: { name } } y position
  */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { MicrosoftUser } from '../auth/interfaces/microsoft-user.interface';
 import { PositionsService } from '../positions/positions.service';
 

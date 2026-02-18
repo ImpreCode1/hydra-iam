@@ -14,6 +14,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PositionsModule } from './modules/positions/positions.module';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PositionsModule } from './modules/positions/positions.module';
     PrismaModule,
     AuthModule,
     PositionsModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
