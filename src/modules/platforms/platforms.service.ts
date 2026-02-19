@@ -9,6 +9,7 @@ export class PlatformsService {
     name: string;
     code: string;
     url: string;
+    logoUrl: string;
     description?: string;
   }) {
     return this.prisma.platform.create({
