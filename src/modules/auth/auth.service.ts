@@ -3,7 +3,11 @@
  * loginWithMicrosoft: busca/crea usuario, genera JWT con roles y cargo, devuelve token + user (sin password).
  */
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,6 +15,9 @@ import { UsersService } from '../users/users.service';
 import { MicrosoftUser } from './interfaces/microsoft-user.interface';
 
 import { ProfileWithAccessResponseDto } from './dto/profile-with-access.dto';
+
+import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -42,10 +49,24 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload, {
       issuer: 'hydra-iam',
       audience: 'internal-platforms',
+      expiresIn: '15m',
+    });
+
+    const refreshToken = randomBytes(64).toString('hex');
+
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+    await this.prisma.refreshToken.create({
+      data: {
+        tokenHash: hashedRefreshToken,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
     });
 
     return {
       accessToken,
+      refreshToken,
       user: userWithoutPassword,
     };
   }
@@ -120,5 +141,71 @@ export class AuthService {
       roles: effectiveRoles.map((role) => role.name),
       platforms,
     };
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token missing');
+    }
+
+    const tokens = await this.prisma.refreshToken.findMany({
+      where: {
+        isRevoked: false,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    type TokenWithUser = (typeof tokens)[number];
+
+    let validToken: TokenWithUser | null = null;
+
+    for (const token of tokens) {
+      const isMatch = await bcrypt.compare(refreshToken, token.tokenHash);
+      if (isMatch) {
+        validToken = token;
+        break;
+      }
+    }
+
+    if (!validToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (validToken.expiresAt < new Date()) {
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    const payload = {
+      sub: validToken.user.id,
+      email: validToken.user.email,
+    };
+
+    const newAccessToken = this.jwtService.sign(payload, {
+      issuer: 'hydra-iam',
+      audience: 'internal-platforms',
+      expiresIn: '15m',
+    });
+
+    return { accessToken: newAccessToken };
+  }
+
+  async logout(refreshToken: string) {
+    if (!refreshToken) return;
+
+    const tokens = await this.prisma.refreshToken.findMany({
+      where: { isRevoked: false },
+    });
+
+    for (const token of tokens) {
+      const isMatch = await bcrypt.compare(refreshToken, token.tokenHash);
+      if (isMatch) {
+        await this.prisma.refreshToken.update({
+          where: { id: token.id },
+          data: { isRevoked: true },
+        });
+      }
+    }
   }
 }

@@ -10,7 +10,9 @@
 import {
   Controller,
   Get,
+  Post,
   Query,
+  Req,
   Request,
   Res,
   UseGuards,
@@ -59,15 +61,23 @@ export class AuthController {
     @Request() req: RequestWithMicrosoftUser,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken } = await this.authService.loginWithMicrosoft(req.user);
+    const { accessToken, refreshToken } =
+      await this.authService.loginWithMicrosoft(req.user);
 
     const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 15 * 60 * 1000,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 min
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
     });
 
     // 🚀 Solo redirigir, SIN token en URL
@@ -123,5 +133,42 @@ export class AuthController {
     @Request() req: RequestWithJwtUser,
   ): Promise<ProfileWithAccessResponseDto> {
     return this.authService.getProfileWithAccess(req.user.id);
+  }
+
+  @Post('refresh')
+  async refresh(
+    @Req() req: Request & { cookies: Record<string, string> },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.refresh_token;
+
+    const { accessToken } =
+      await this.authService.refreshAccessToken(refreshToken);
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    return { message: 'Token refreshed' };
+  }
+
+  @Post('logout')
+  async logout(
+    @Req() req: ExpressRequest & { cookies: Record<string, string> },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const refreshToken = req.cookies?.refresh_token;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    await this.authService.logout(refreshToken);
+
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+
+    return { message: 'Logout successful' };
   }
 }

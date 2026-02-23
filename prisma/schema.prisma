@@ -28,6 +28,7 @@ model User {
   position   Position? @relation(fields: [positionId], references: [id])
 
   roles      UserRole[]
+  refreshTokens RefreshToken[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -122,4 +123,20 @@ model PlatformRole {
 
   @@id([platformId, roleId])
   @@map("plataforma_rol")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @map("token_hash")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  isRevoked Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }
