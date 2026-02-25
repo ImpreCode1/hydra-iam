@@ -14,6 +14,20 @@ services:
     networks:
       - hydra-network
 
+  hydra-notifications-db:
+    image: postgres:16-alpine
+    container_name: hydra-notifications-db
+    environment:
+      POSTGRES_USER: hydra
+      POSTGRES_PASSWORD: hydra123
+      POSTGRES_DB: hydra_notifications
+    volumes:
+      - hydra_notifications_db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - hydra-network
+
   hydra-core:
     image: node:24-alpine
     container_name: hydra-api-dev
@@ -46,3 +60,4 @@ networks:
 
 volumes:
   hydra_db_data:
+  hydra_notifications_db_data:
