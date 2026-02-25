@@ -60,7 +60,7 @@ export class AuthService {
       data: {
         tokenHash: hashedRefreshToken,
         userId: user.id,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       },
     });
 
