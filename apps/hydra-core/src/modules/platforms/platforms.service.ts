@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class PlatformsService {
@@ -12,8 +14,32 @@ export class PlatformsService {
     logoUrl: string;
     description?: string;
   }) {
-    return this.prisma.platform.create({
-      data,
+    const clientSecretPlain = this.generateRandomSecret();
+    const hashedSecret = await bcrypt.hash(clientSecretPlain, 10);
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1️⃣ Crear plataforma
+      const platform = await tx.platform.create({
+        data,
+      });
+
+      // 2️⃣ Crear ServiceClient asociado
+      const serviceClient = await tx.serviceClient.create({
+        data: {
+          name: `${platform.name} Service`,
+          clientId: `${platform.code}-service`,
+          clientSecret: hashedSecret,
+          platformId: platform.id, // requiere relación en schema
+        },
+      });
+
+      return {
+        platform,
+        serviceCredentials: {
+          clientId: serviceClient.clientId,
+          clientSecret: clientSecretPlain, // SOLO se muestra una vez
+        },
+      };
     });
   }
 
@@ -111,5 +137,9 @@ export class PlatformsService {
         },
       },
     });
+  }
+
+  private generateRandomSecret(): string {
+    return randomBytes(32).toString('hex'); // 64 caracteres seguros
   }
 }
