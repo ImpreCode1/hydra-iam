@@ -208,4 +208,33 @@ export class AuthService {
       }
     }
   }
+
+  async issueServiceToken(clientId: string, clientSecret: string) {
+    const service = await this.prisma.serviceClient.findUnique({
+      where: { clientId },
+    });
+
+    if (!service || !service.isActive) {
+      throw new UnauthorizedException('Servicio inválido');
+    }
+
+    const isValid = await bcrypt.compare(clientSecret, service.clientSecret);
+
+    if (!isValid) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    const payload = {
+      sub: service.id,
+      client_id: service.clientId,
+      type: 'service' as const,
+    };
+
+    const token = await this.jwtService.signAsync(payload);
+
+    return {
+      access_token: token,
+      token_type: 'Bearer',
+    };
+  }
 }

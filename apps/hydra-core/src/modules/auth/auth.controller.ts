@@ -8,6 +8,7 @@
  * - GET /auth/me               → Datos del usuario (requiere JWT)
  */
 import {
+  Body,
   Controller,
   Get,
   Post,
@@ -32,6 +33,7 @@ interface RequestWithMicrosoftUser extends ExpressRequest {
 }
 
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { ServiceTokenDto } from './dto/service-token.dto';
 
 interface RequestWithJwtUser extends ExpressRequest {
   user: JwtPayload;
@@ -170,5 +172,10 @@ export class AuthController {
     res.clearCookie('refresh_token');
 
     return { message: 'Logout successful' };
+  }
+
+  @Post('service-token')
+  async getServiceToken(@Body() dto: ServiceTokenDto) {
+    return this.authService.issueServiceToken(dto.client_id, dto.client_secret);
   }
 }

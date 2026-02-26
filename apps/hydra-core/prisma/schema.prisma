@@ -140,3 +140,14 @@ model RefreshToken {
   @@index([userId])
   @@map("refresh_tokens")
 }
+
+model ServiceClient {
+  id           String   @id @default(uuid())
+  name         String
+  clientId     String   @unique
+  clientSecret String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@map("service_clients")
+}
