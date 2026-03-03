@@ -53,6 +53,25 @@ services:
     networks:
       - hydra-network
 
+  hydra-hub:
+    build:
+      context: ./apps/hydra-hub
+      dockerfile: Dockerfile.dev
+    container_name: hydra-hub
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./apps/hydra-hub:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://hydra-core:3000
+      - WATCHPACK_POLLING=true
+      - NODE_ENV=development
+    depends_on:
+      - hydra-core
+    networks:
+      - hydra-network
 
 networks:
   hydra-network:
