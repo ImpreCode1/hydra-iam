@@ -30,6 +30,7 @@
     "@prisma/client": "^7.3.0",
     "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
+    "class-validator": "^0.15.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^17.2.4",
     "msal": "^1.4.18",

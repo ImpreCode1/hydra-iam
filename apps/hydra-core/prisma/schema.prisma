@@ -84,6 +84,7 @@ model Platform {
   deletedAt DateTime? @map("deleted_at")
 
   roles PlatformRole[]
+  serviceClient ServiceClient?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -139,4 +140,18 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model ServiceClient {
+  id           String   @id @default(uuid())
+  name         String
+  clientId     String   @unique
+  clientSecret String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  platformId   String?  @unique
+  platform     Platform? @relation(fields: [platformId], references: [id])
+
+  @@map("service_clients")
 }
