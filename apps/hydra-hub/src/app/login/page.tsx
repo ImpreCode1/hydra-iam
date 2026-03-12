@@ -1,32 +1,15 @@
-"use client"
-
-import { loginWithMicrosoft } from "@/modules/auth/api"
+import LoginBackground from "@/components/auth/LoginBackground"
+import LoginCard from "@/components/auth/LoginCard"
 
 export default function LoginPage() {
-
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
-        gap: "20px"
-      }}
-    >
+    <div className="login-container">
 
-      <h1>Hydra IAM</h1>
+      <LoginBackground />
 
-      <button
-        onClick={loginWithMicrosoft}
-        style={{
-          padding: "10px 20px",
-          cursor: "pointer"
-        }}
-      >
-        Login with Microsoft
-      </button>
+      <div className="login-content">
+        <LoginCard />
+      </div>
 
     </div>
   )
