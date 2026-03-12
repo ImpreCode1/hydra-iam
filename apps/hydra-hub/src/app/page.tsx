@@ -1,48 +1,16 @@
-"use client"
+import { HubLayout } from "@/components/layout/HubLayout"
+import { PlatformGrid } from "@/components/hub/PlatformGrid"
 
-import { useAuth } from "@/hooks/useAuth"
-import { logout } from "@/modules/auth/api"
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-
-export default function HomePage() {
-
-  const { user, loading, isAuthenticated } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push("/login")
-    }
-  }, [loading, isAuthenticated, router])
-
-  if (loading) {
-    return <p>Cargando sesión...</p>
-  }
-
-  if (!user) return null
-
+export default function DashboardPage() {
   return (
-    <div style={{ padding: "40px" }}>
+    <HubLayout>
 
-      <h1>Hydra Hub</h1>
+      <div className="max-w-7xl mx-auto">
 
-      <p>Bienvenido {user.name}</p>
+        <PlatformGrid />
 
-      <p>Email: {user.email}</p>
+      </div>
 
-      <p>Roles: {user.roles?.join(", ")}</p>
-
-      <button
-        onClick={logout}
-        style={{
-          marginTop: "20px",
-          padding: "10px"
-        }}
-      >
-        Logout
-      </button>
-
-    </div>
+    </HubLayout>
   )
 }
