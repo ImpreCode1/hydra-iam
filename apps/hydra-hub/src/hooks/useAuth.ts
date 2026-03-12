@@ -16,19 +16,25 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+
     async function loadUser() {
 
-      const currentUser = await getCurrentUser()
+      try {
+        const currentUser = await getCurrentUser()
+        setUser(currentUser)
+      } finally {
+        setLoading(false)
+      }
 
-      setUser(currentUser)
-      setLoading(false)
     }
 
     loadUser()
+
   }, [])
 
   return {
     user,
-    loading
+    loading,
+    isAuthenticated: !!user
   }
 }

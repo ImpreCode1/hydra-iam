@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import MicrosoftButton from "./MicrosoftButton"
 
 export default function LoginCard() {
