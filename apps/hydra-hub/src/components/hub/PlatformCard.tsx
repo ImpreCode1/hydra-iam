@@ -15,7 +15,7 @@ export function PlatformCard({ platform }: { platform: Platform }) {
       <figure className="px-10 pt-10">
         <div className="w-20 h-20 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 transition-colors group-hover:bg-indigo-50/50 group-hover:border-indigo-100">
           <img
-            src="./impresistem_logo.png" // O usa {platform.image} si viene del objeto
+            src={platform.image} // O usa {platform.image} si viene del objeto
             alt={platform.name}
             className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all"
           />
