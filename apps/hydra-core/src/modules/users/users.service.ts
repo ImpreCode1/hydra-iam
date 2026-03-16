@@ -163,28 +163,40 @@ export class UsersService {
       orderBy: { name: 'asc' },
     });
 
-    return users.map((u) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
+    return users.map((u) => {
+      const roles = u.roles.map((r) => ({
+        id: r.role.id,
+        name: r.role.name,
+      }));
 
-      isActive: u.isActive,
+      const platformsMap = new Map<string, { id: string; name: string }>();
 
-      position: u.position
-        ? {
-            id: u.position.id,
-            name: u.position.name,
-          }
-        : null,
+      u.roles.forEach((r) => {
+        r.role.platforms.forEach((p) => {
+          platformsMap.set(p.platform.id, {
+            id: p.platform.id,
+            name: p.platform.name,
+          });
+        });
+      });
 
-      roles: u.roles.map((r) => r.role.name),
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        isActive: u.isActive,
 
-      platforms: [
-        ...new Set(
-          u.roles.flatMap((r) => r.role.platforms.map((p) => p.platform.name)),
-        ),
-      ],
-    }));
+        position: u.position
+          ? {
+              id: u.position.id,
+              name: u.position.name,
+            }
+          : null,
+
+        roles,
+        platforms: Array.from(platformsMap.values()),
+      };
+    });
   }
 
   async findById(id: string) {
