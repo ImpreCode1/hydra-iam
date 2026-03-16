@@ -149,12 +149,8 @@ export class AuthService {
     }
 
     const tokens = await this.prisma.refreshToken.findMany({
-      where: {
-        isRevoked: false,
-      },
-      include: {
-        user: true,
-      },
+      where: { isRevoked: false },
+      include: { user: true },
     });
 
     type TokenWithUser = (typeof tokens)[number];
@@ -177,9 +173,35 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token expired');
     }
 
+    // 🔹 BUSCAR USUARIO CON ROLES
+    const user = await this.prisma.user.findUnique({
+      where: { id: validToken.user.id },
+      include: {
+        roles: {
+          include: { role: true },
+        },
+        position: {
+          include: {
+            roles: {
+              include: { role: true },
+            },
+          },
+        },
+      },
+    });
+
+    const rolesFromPosition =
+      user?.position?.roles.map((pr) => pr.role.name) ?? [];
+    const directRoles = user?.roles.map((ur) => ur.role.name) ?? [];
+
+    const roles = [...new Set([...rolesFromPosition, ...directRoles])];
+
     const payload = {
-      sub: validToken.user.id,
-      email: validToken.user.email,
+      sub: user!.id,
+      email: user!.email,
+      name: user!.name,
+      roles,
+      positionId: user!.positionId ?? null,
     };
 
     const newAccessToken = this.jwtService.sign(payload, {

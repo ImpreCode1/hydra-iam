@@ -40,6 +40,9 @@ export class RolesGuard implements CanActivate {
 
     const user = request.user;
 
+    console.log('USER:', user);
+    console.log('REQUIRED ROLES:', requiredRoles);
+
     if (!user || !Array.isArray(user.roles)) {
       throw new ForbiddenException('No autorizado');
     }

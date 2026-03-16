@@ -1,11 +1,41 @@
 import { apiFetch } from "@/lib/api-client"
 
-export interface User {
+/* =========================
+   TYPES
+========================= */
+
+export interface Role {
   id: string
   name: string
+}
+
+export interface Platform {
+  id: string
+  name: string
+}
+
+export interface Position {
+  id: string
+  name: string
+  description?: string | null
+}
+
+export interface User {
+  id: string
+  name: string | null
   email: string
   active: boolean
+
+  positionId?: string | null
+  position?: Position | null
+
+  roles?: Role[]
+  platforms?: Platform[]
 }
+
+/* =========================
+   USERS
+========================= */
 
 export function getUsers(): Promise<User[]> {
   return apiFetch("/users")
@@ -22,7 +52,11 @@ export function changeUserStatus(id: string, active: boolean) {
   })
 }
 
-export function getUserRoles(id: string) {
+/* =========================
+   ROLES
+========================= */
+
+export function getUserRoles(id: string): Promise<Role[]> {
   return apiFetch(`/users/${id}/roles`)
 }
 
