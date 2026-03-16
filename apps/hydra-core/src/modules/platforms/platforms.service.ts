@@ -104,39 +104,80 @@ export class PlatformsService {
   }
 
   async getAccessiblePlatforms(userId: string) {
-    // 1️⃣ Obtener usuario con cargo y roles directos
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                platforms: {
+                  include: {
+                    platform: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         position: {
           include: {
-            roles: true,
-          },
-        },
-        roles: true,
-      },
-    });
-
-    if (!user) return [];
-
-    // 2️⃣ Recolectar roles
-    const positionRoles = user.position?.roles.map((pr) => pr.roleId) ?? [];
-
-    const directRoles = user.roles.map((ur) => ur.roleId);
-
-    const allRoleIds = [...new Set([...positionRoles, ...directRoles])];
-
-    // 3️⃣ Buscar plataformas asociadas
-    return this.prisma.platform.findMany({
-      where: {
-        isActive: true,
-        roles: {
-          some: {
-            roleId: { in: allRoleIds },
+            roles: {
+              include: {
+                role: {
+                  include: {
+                    platforms: {
+                      include: {
+                        platform: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
+
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    const platformsMap = new Map();
+
+    // Plataformas por roles directos
+    user.roles.forEach((ur) => {
+      ur.role.platforms.forEach((rp) => {
+        const p = rp.platform;
+
+        platformsMap.set(p.id, {
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          image: p.logoUrl,
+          url: p.url,
+        });
+      });
+    });
+
+    // Plataformas por cargo
+    user.position?.roles.forEach((pr) => {
+      pr.role.platforms.forEach((rp) => {
+        const p = rp.platform;
+
+        platformsMap.set(p.id, {
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          image: p.logoUrl,
+          url: p.url,
+        });
+      });
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return Array.from(platformsMap.values());
   }
 
   private generateRandomSecret(): string {
