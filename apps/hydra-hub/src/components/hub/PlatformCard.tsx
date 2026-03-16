@@ -44,7 +44,7 @@ export function PlatformCard({ platform }: { platform: Platform }) {
       </div>
 
       {/* DECORACIÓN SUTIL DE FONDO */}
-      <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-transparent to-transparent group-hover:to-indigo-50/40 transition-all duration-500" />
+      <div className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-br from-transparent to-transparent group-hover:to-indigo-50/40 transition-all duration-500" />
     </div>
   );
 }
