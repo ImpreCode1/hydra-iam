@@ -24,7 +24,7 @@ export interface User {
   id: string
   name: string | null
   email: string
-  active: boolean
+  isActive: boolean
 
   positionId?: string | null
   position?: Position | null

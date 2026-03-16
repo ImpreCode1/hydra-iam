@@ -142,13 +142,49 @@ export class UsersService {
   }
 
   async findAll() {
-    return this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       where: { deletedAt: null },
       include: {
         position: true,
+        roles: {
+          include: {
+            role: {
+              include: {
+                platforms: {
+                  include: {
+                    platform: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       orderBy: { name: 'asc' },
     });
+
+    return users.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+
+      isActive: u.isActive,
+
+      position: u.position
+        ? {
+            id: u.position.id,
+            name: u.position.name,
+          }
+        : null,
+
+      roles: u.roles.map((r) => r.role.name),
+
+      platforms: [
+        ...new Set(
+          u.roles.flatMap((r) => r.role.platforms.map((p) => p.platform.name)),
+        ),
+      ],
+    }));
   }
 
   async findById(id: string) {

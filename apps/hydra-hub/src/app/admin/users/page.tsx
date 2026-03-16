@@ -165,12 +165,12 @@ export default function UsersPage() {
                   <td className="p-4">
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-md ${
-                        user.active
+                        user.isActive
                           ? "bg-green-100 text-green-700 border border-green-200"
                           : "bg-red-100 text-red-700 border border-red-200"
                       }`}
                     >
-                      {user.active ? "Activo" : "Inactivo"}
+                      {user.isActive ? "Activo" : "Inactivo"}
                     </span>
                   </td>
                 </tr>
