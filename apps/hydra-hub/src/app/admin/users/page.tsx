@@ -2,6 +2,81 @@
 
 import { useEffect, useState } from "react";
 import { getUsers, type User } from "@/modules/users/api";
+import { DataTable } from "@/components/ui/DataTable"
+
+const columns = [
+  {
+    header: "Usuario",
+    render: (user: User) => (
+      <div className="flex flex-col">
+        <span className="font-medium text-gray-900">
+          {user.name || "Sin nombre"}
+        </span>
+        <span className="text-xs text-gray-500">
+          {user.email}
+        </span>
+      </div>
+    ),
+  },
+  {
+    header: "Cargo",
+    render: (user: User) => user.position?.name || "—",
+  },
+  {
+    header: "Roles",
+    render: (user: User) => (
+      <div className="flex flex-wrap gap-2">
+        {user.roles?.length === 0 && (
+          <span className="text-xs text-gray-400">Sin roles</span>
+        )}
+
+        {user.roles?.map((role) => (
+          <span
+            key={role.id}
+            className="px-2 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200"
+          >
+            {role.name}
+          </span>
+        ))}
+      </div>
+    ),
+  },
+  {
+    header: "Plataformas",
+    render: (user: User) => (
+      <div className="flex flex-wrap gap-2">
+        {user.platforms?.length === 0 && (
+          <span className="text-xs text-gray-400">
+            Sin plataformas
+          </span>
+        )}
+
+        {user.platforms?.map((platform) => (
+          <span
+            key={platform.id}
+            className="px-2 py-1 text-xs rounded-md bg-blue-50 text-blue-700 border border-blue-200"
+          >
+            {platform.name}
+          </span>
+        ))}
+      </div>
+    ),
+  },
+  {
+    header: "Estado",
+    render: (user: User) => (
+      <span
+        className={`px-2 py-1 text-xs font-medium rounded-md ${
+          user.isActive
+            ? "bg-green-100 text-green-700 border border-green-200"
+            : "bg-red-100 text-red-700 border border-red-200"
+        }`}
+      >
+        {user.isActive ? "Activo" : "Inactivo"}
+      </span>
+    ),
+  },
+]
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -66,117 +141,11 @@ export default function UsersPage() {
       {/* TABLE */}
 
       <div className="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr className="text-left text-gray-700 font-medium">
-              <th className="p-4">Usuario</th>
-              <th className="p-4">Cargo</th>
-              <th className="p-4">Roles</th>
-              <th className="p-4">Plataformas</th>
-              <th className="p-4">Estado</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
-                  Cargando usuarios...
-                </td>
-              </tr>
-            )}
-
-            {!loading && filteredUsers.length === 0 && (
-              <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
-                  No se encontraron usuarios
-                </td>
-              </tr>
-            )}
-
-            {!loading &&
-              filteredUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-b last:border-none hover:bg-gray-50 transition"
-                >
-                  {/* USER */}
-
-                  <td className="p-4">
-                    <div className="flex flex-col">
-                      <span className="font-medium text-gray-900">
-                        {user.name || "Sin nombre"}
-                      </span>
-
-                      <span className="text-xs text-gray-500">
-                        {user.email}
-                      </span>
-                    </div>
-                  </td>
-
-                  {/* POSITION */}
-
-                  <td className="p-4 text-gray-700">
-                    {user.position?.name || "—"}
-                  </td>
-
-                  {/* ROLES */}
-
-                  <td className="p-4">
-                    <div className="flex flex-wrap gap-2">
-                      {user.roles?.length === 0 && (
-                        <span className="text-xs text-gray-400">Sin roles</span>
-                      )}
-
-                      {user.roles?.map((role) => (
-                        <span
-                          key={role.id}
-                          className="px-2 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200"
-                        >
-                          {role.name}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-
-                  {/* PLATFORMS */}
-
-                  <td className="p-4">
-                    <div className="flex flex-wrap gap-2">
-                      {user.platforms?.length === 0 && (
-                        <span className="text-xs text-gray-400">
-                          Sin plataformas
-                        </span>
-                      )}
-
-                      {user.platforms?.map((platform) => (
-                        <span
-                          key={platform.id}
-                          className="px-2 py-1 text-xs rounded-md bg-blue-50 text-blue-700 border border-blue-200"
-                        >
-                          {platform.name}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-
-                  {/* STATUS */}
-
-                  <td className="p-4">
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded-md ${
-                        user.isActive
-                          ? "bg-green-100 text-green-700 border border-green-200"
-                          : "bg-red-100 text-red-700 border border-red-200"
-                      }`}
-                    >
-                      {user.isActive ? "Activo" : "Inactivo"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        <DataTable
+          data={filteredUsers}
+          columns={columns}
+          loading={loading}
+        />
       </div>
     </div>
   );

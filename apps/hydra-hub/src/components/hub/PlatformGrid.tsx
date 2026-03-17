@@ -10,6 +10,7 @@ interface Platform {
   name: string
   description: string
   image: string
+  url: string
 }
 
 export function PlatformGrid() {

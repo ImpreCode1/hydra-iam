@@ -1,11 +1,13 @@
 import { apiFetch } from "@/lib/api-client"
 
-export interface Platform {
+export type Platform = {
   id: string
   name: string
-  description: string
-  logo_url?: string
-  launch_url: string
+  code: string
+  description?: string
+  url: string
+  logoUrl?: string
+  isActive: boolean
 }
 
 export function getPlatforms(): Promise<Platform[]> {
@@ -25,8 +27,12 @@ export function createPlatform(data: Partial<Platform>) {
 
 export function updatePlatform(id: string, data: Partial<Platform>) {
   return apiFetch(`/platforms/${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(data)
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   })
 }
 

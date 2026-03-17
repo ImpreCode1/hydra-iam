@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { ExternalLink } from "lucide-react";
 
 interface Platform {
@@ -5,6 +6,7 @@ interface Platform {
   name: string;
   description: string;
   image: string;
+  url: string;
 }
 
 export function PlatformCard({ platform }: { platform: Platform }) {
