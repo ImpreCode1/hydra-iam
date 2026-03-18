@@ -11,22 +11,22 @@ export type Platform = {
 }
 
 export function getPlatforms(): Promise<Platform[]> {
-  return apiFetch("/platforms")
+  return apiFetch("/platform")
 }
 
 export function getPlatform(id: string): Promise<Platform> {
-  return apiFetch(`/platforms/${id}`)
+  return apiFetch(`/platform/${id}`)
 }
 
 export function createPlatform(data: Partial<Platform>) {
-  return apiFetch("/platforms", {
+  return apiFetch("/platform", {
     method: "POST",
     body: JSON.stringify(data)
   })
 }
 
 export function updatePlatform(id: string, data: Partial<Platform>) {
-  return apiFetch(`/platforms/${id}`, {
+  return apiFetch(`/platform/${id}`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -37,27 +37,27 @@ export function updatePlatform(id: string, data: Partial<Platform>) {
 }
 
 export function deletePlatform(id: string) {
-  return apiFetch(`/platforms/${id}`, {
+  return apiFetch(`/platform/${id}`, {
     method: "DELETE"
   })
 }
 
 export function assignRoleToPlatform(platformId: string, roleId: string) {
-  return apiFetch(`/platforms/${platformId}/roles/${roleId}`, {
+  return apiFetch(`/platform/${platformId}/roles/${roleId}`, {
     method: "POST"
   })
 }
 
 export function removeRoleFromPlatform(platformId: string, roleId: string) {
-  return apiFetch(`/platforms/${platformId}/roles/${roleId}`, {
+  return apiFetch(`/platform/${platformId}/roles/${roleId}`, {
     method: "DELETE"
   })
 }
 
 export function getPlatformRoles(platformId: string) {
-  return apiFetch(`/platforms/${platformId}/roles`)
+  return apiFetch(`/platform/${platformId}/roles`)
 }
 
 export function getMyPlatforms() {
-  return apiFetch("/platforms/me/access")
+  return apiFetch("/platform/me/access")
 }
