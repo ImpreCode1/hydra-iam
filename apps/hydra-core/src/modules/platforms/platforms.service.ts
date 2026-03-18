@@ -183,4 +183,15 @@ export class PlatformsService {
   private generateRandomSecret(): string {
     return randomBytes(32).toString('hex'); // 64 caracteres seguros
   }
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async saveLogo(file: Express.Multer.File): Promise<{ url: string }> {
+    if (!file) {
+      throw new Error('Archivo inválido');
+    }
+
+    return {
+      url: `http://localhost:3000/uploads/platforms/${file.filename}`,
+    };
+  }
 }
