@@ -15,6 +15,8 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.FRONTEND_URL, // frontend Next.js
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   await app.listen(process.env.PORT ?? 3000);

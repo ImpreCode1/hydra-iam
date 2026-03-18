@@ -1,68 +1,74 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+type ApiFetchOptions = RequestInit & {
+  isFormData?: boolean;
+};
 
 async function refreshToken(): Promise<boolean> {
   try {
     const res = await fetch(`${API_URL}/auth/refresh`, {
       method: "POST",
-      credentials: "include"
-    })
+      credentials: "include",
+    });
 
-    if (!res.ok) {
-      throw new Error("Refresh failed")
-    }
-
-    return true
+    return res.ok;
   } catch {
-    return false
+    return false;
   }
 }
 
 export async function apiFetch(
   path: string,
-  options: RequestInit = {}
+  options: ApiFetchOptions = {}
 ) {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    }
-  })
+    const isFormData =
+    options.isFormData ?? options.body instanceof FormData;
 
-  // Si el access token expiró
+  const hasBody = !!options.body;
+
+  const baseHeaders: Record<string, string> = {
+    ...(options.headers as Record<string, string> || {}),
+  };
+
+  if (!isFormData && hasBody) {
+    baseHeaders["Content-Type"] = "application/json";
+  }
+  const makeRequest = () =>
+    fetch(`${API_URL}${path}`, {
+      ...options,
+      credentials: "include",
+      headers: baseHeaders,
+    });
+
+  let response = await makeRequest();
+
+  // 🔁 Manejo de refresh token
   if (response.status === 401) {
-
-    const refreshed = await refreshToken()
+    const refreshed = await refreshToken();
 
     if (!refreshed) {
       if (typeof window !== "undefined") {
-        window.location.href = "/login"
+        window.location.href = "/login";
       }
-
-      throw new Error("Session expired")
+      throw new Error("Session expired");
     }
 
-    // Reintentar request original
-    const retry = await fetch(`${API_URL}${path}`, {
-      ...options,
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {})
-      }
-    })
-
-    if (!retry.ok) {
-      throw new Error("API Error")
-    }
-
-    return retry.json()
+    response = await makeRequest();
   }
 
   if (!response.ok) {
-    throw new Error("API Error")
+    throw new Error(`API Error: ${response.status}`);
   }
 
-  return response.json()
+  return handleResponse(response);
+}
+
+async function handleResponse(response: Response) {
+  const contentType = response.headers.get("content-type");
+
+  if (contentType?.includes("application/json")) {
+    return response.json();
+  }
+
+  return response;
 }

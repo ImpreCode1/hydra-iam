@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { createPlatform } from "@/modules/platforms/api"
-//import { uploadFile } from "@/modules/uploads/api"
+import { uploadPlatformLogo } from "@/modules/media/api"
 
 export function PlatformForm({ onCreated }: { onCreated: () => void }) {
   const [name, setName] = useState("")
@@ -10,6 +10,7 @@ export function PlatformForm({ onCreated }: { onCreated: () => void }) {
   const [description, setDescription] = useState("")
   const [url, setUrl] = useState("")
   const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -19,12 +20,10 @@ export function PlatformForm({ onCreated }: { onCreated: () => void }) {
     try {
       let logoUrl: string | undefined
 
-      // 🧠 1. Subir imagen primero
-    //   if (file) {
-    //     logoUrl = await uploadFile(file)
-    //   }
+      if (file) {
+        logoUrl = await uploadPlatformLogo(file)
+      }
 
-      // 🧠 2. Crear plataforma
       await createPlatform({
         name,
         code,
@@ -39,6 +38,7 @@ export function PlatformForm({ onCreated }: { onCreated: () => void }) {
       setDescription("")
       setUrl("")
       setFile(null)
+      setPreview(null)
 
       onCreated()
     } catch (error) {
@@ -49,53 +49,91 @@ export function PlatformForm({ onCreated }: { onCreated: () => void }) {
     }
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0] || null
+    setFile(selected)
+
+    if (selected) {
+      setPreview(URL.createObjectURL(selected))
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 border p-4 rounded">
-      <h2 className="font-semibold text-lg">Crear Plataforma</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-5 bg-white p-6 rounded-2xl shadow-md border max-w-lg"
+    >
+      <h2 className="text-xl font-semibold text-gray-800">
+        Crear Plataforma
+      </h2>
 
-      <input
-        className="border p-2 w-full"
-        placeholder="Nombre"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
+      {/* Nombre */}
+      <div>
+        <label className="text-sm text-gray-600">Nombre</label>
+        <input
+          className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
 
-      <input
-        className="border p-2 w-full"
-        placeholder="Código (ej: CRM)"
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        required
-      />
+      {/* Código */}
+      <div>
+        <label className="text-sm text-gray-600">Código</label>
+        <input
+          className="mt-1 w-full border rounded-lg px-3 py-2 uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          required
+        />
+      </div>
 
-      <input
-        className="border p-2 w-full"
-        placeholder="URL"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        required
-      />
+      {/* URL */}
+      <div>
+        <label className="text-sm text-gray-600">URL</label>
+        <input
+          className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          required
+        />
+      </div>
 
-      <textarea
-        className="border p-2 w-full"
-        placeholder="Descripción"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+      {/* Descripción */}
+      <div>
+        <label className="text-sm text-gray-600">Descripción</label>
+        <textarea
+          className="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
 
-      {/* 🔥 Upload */}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-      />
+      {/* Upload */}
+      <div>
+        <label className="text-sm text-gray-600">Logo</label>
 
+        <div className="mt-2 flex items-center gap-4">
+          <input type="file" accept="image/*" onChange={handleFileChange} />
+
+          {preview && (
+            <img
+              src={preview}
+              alt="preview"
+              className="w-14 h-14 object-cover rounded-lg border"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Botón */}
       <button
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        type="submit"
         disabled={loading}
+        className="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-2 rounded-lg font-medium disabled:opacity-50"
       >
-        {loading ? "Creando..." : "Crear"}
+        {loading ? "Creando..." : "Crear Plataforma"}
       </button>
     </form>
   )

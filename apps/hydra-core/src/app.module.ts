@@ -16,6 +16,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PositionsModule } from './modules/positions/positions.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PlatformsModule } from './modules/platforms/platforms.module';
+import { MediaModule } from './modules/media/media.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PlatformsModule } from './modules/platforms/platforms.module';
     PositionsModule,
     RolesModule,
     PlatformsModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
