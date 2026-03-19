@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * Servicio de autenticación.
  * loginWithMicrosoft: busca/crea usuario, genera JWT con roles y cargo, devuelve token + user (sin password).
@@ -30,20 +34,18 @@ export class AuthService {
   async loginWithMicrosoft(msUser: MicrosoftUser) {
     const user = await this.usersService.findOrCreateFromMicrosoft(msUser);
 
-    const roleNames: string[] =
-      user.roles?.flatMap((ur) => (ur.role?.name ? [ur.role.name] : [])) ?? [];
+    // 🔥 Resolver roles correctamente (directos + cargo)
+    const effectiveRoles = resolveEffectiveRoles(user);
 
     const payload = {
       sub: user.id,
       email: user.email,
       name: user.name,
-      roles: roleNames,
+      roles: effectiveRoles.map((r) => r.name), // 👈 nombres para guards simples
       positionId: user.positionId ?? null,
     };
 
     const { password, ...userWithoutPassword } = user;
-
-    // evitar warning unused variable
     void password;
 
     const accessToken = this.jwtService.sign(payload, {
@@ -53,7 +55,6 @@ export class AuthService {
     });
 
     const refreshToken = randomBytes(64).toString('hex');
-
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
     await this.prisma.refreshToken.create({
@@ -259,4 +260,21 @@ export class AuthService {
       token_type: 'Bearer',
     };
   }
+}
+
+function resolveEffectiveRoles(user: any) {
+  const directRoles = user.roles?.map((ur) => ur.role) ?? [];
+
+  const positionRoles = user.position?.roles?.map((pr) => pr.role) ?? [];
+
+  // Merge sin duplicados por ID
+  const rolesMap = new Map<string, any>();
+
+  [...directRoles, ...positionRoles].forEach((role) => {
+    if (role) {
+      rolesMap.set(role.id, role);
+    }
+  });
+
+  return Array.from(rolesMap.values());
 }

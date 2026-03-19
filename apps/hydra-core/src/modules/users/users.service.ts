@@ -58,7 +58,15 @@ export class UsersService {
       },
       include: {
         roles: { include: { role: true } },
-        position: true,
+        position: {
+          include: {
+            roles: {
+              include: {
+                role: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -87,7 +95,15 @@ export class UsersService {
           },
           include: {
             roles: { include: { role: true } },
-            position: true,
+            position: {
+              include: {
+                roles: {
+                  include: {
+                    role: true,
+                  },
+                },
+              },
+            },
           },
         });
       }
@@ -134,7 +150,15 @@ export class UsersService {
       where: { id: newUser.id },
       include: {
         roles: { include: { role: true } },
-        position: true,
+        position: {
+          include: {
+            roles: {
+              include: {
+                role: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -145,7 +169,23 @@ export class UsersService {
     const users = await this.prisma.user.findMany({
       where: { deletedAt: null },
       include: {
-        position: true,
+        position: {
+          include: {
+            roles: {
+              include: {
+                role: {
+                  include: {
+                    platforms: {
+                      include: {
+                        platform: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
         roles: {
           include: {
             role: {
@@ -164,15 +204,27 @@ export class UsersService {
     });
 
     return users.map((u) => {
-      const roles = u.roles.map((r) => ({
-        id: r.role.id,
-        name: r.role.name,
-      }));
+      // 🔹 Roles directos
+      const directRoles = u.roles.map((r) => r.role);
 
+      // 🔹 Roles del cargo
+      const positionRoles = u.position?.roles.map((r) => r.role) ?? [];
+
+      // 🔹 Combinar roles sin duplicados
+      const rolesMap = new Map<string, { id: string; name: string }>();
+
+      [...directRoles, ...positionRoles].forEach((role) => {
+        rolesMap.set(role.id, {
+          id: role.id,
+          name: role.name,
+        });
+      });
+
+      // 🔹 Plataformas (de TODOS los roles)
       const platformsMap = new Map<string, { id: string; name: string }>();
 
-      u.roles.forEach((r) => {
-        r.role.platforms.forEach((p) => {
+      [...directRoles, ...positionRoles].forEach((role) => {
+        role.platforms.forEach((p) => {
           platformsMap.set(p.platform.id, {
             id: p.platform.id,
             name: p.platform.name,
@@ -193,7 +245,10 @@ export class UsersService {
             }
           : null,
 
-        roles,
+        // 🔥 roles ya unificados (esto soluciona tu problema)
+        roles: Array.from(rolesMap.values()),
+
+        // 🔥 plataformas también unificadas
         platforms: Array.from(platformsMap.values()),
       };
     });
