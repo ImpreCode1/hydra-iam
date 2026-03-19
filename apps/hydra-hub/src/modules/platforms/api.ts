@@ -27,13 +27,9 @@ export function createPlatform(data: Partial<Platform>) {
 
 export function updatePlatform(id: string, data: Partial<Platform>) {
   return apiFetch(`/platform/${id}`, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    method: "PATCH",
     body: JSON.stringify(data),
-  })
+  });
 }
 
 export function deletePlatform(id: string) {

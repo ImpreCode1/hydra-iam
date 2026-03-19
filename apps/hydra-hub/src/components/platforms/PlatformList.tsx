@@ -6,6 +6,7 @@ import {
   deletePlatform,
   updatePlatform,
 } from "@/modules/platforms/api";
+import { EditPlatformModal } from "./EditPlatformModal"; // 👈 importa el modal
 
 type Platform = {
   id: string;
@@ -19,14 +20,19 @@ type Platform = {
 export function PlatformList() {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(
+    null,
+  );
 
   async function fetchData() {
-    setLoading(true);
     try {
+      setLoading(true);
       const data = await getPlatforms();
       setPlatforms(data);
     } catch (err) {
       console.error(err);
+      alert("Error cargando plataformas");
     } finally {
       setLoading(false);
     }
@@ -36,27 +42,53 @@ export function PlatformList() {
     fetchData();
   }, []);
 
+  // 🔥 ELIMINAR
   async function handleDelete(id: string) {
     if (!confirm("¿Eliminar plataforma?")) return;
 
     try {
+      setActionLoading(id);
+
       await deletePlatform(id);
-      fetchData();
+
+      setPlatforms((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);
       alert("Error eliminando");
+    } finally {
+      setActionLoading(null);
     }
   }
 
+  // 🔥 TOGGLE
   async function toggleStatus(platform: Platform) {
     try {
+      setActionLoading(platform.id);
+
+      const updated = !platform.isActive;
+
       await updatePlatform(platform.id, {
-        isActive: !platform.isActive,
+        isActive: updated,
       });
-      fetchData();
+
+      setPlatforms((prev) =>
+        prev.map((p) =>
+          p.id === platform.id ? { ...p, isActive: updated } : p,
+        ),
+      );
     } catch (err) {
       console.error(err);
+      alert("Error actualizando estado");
+    } finally {
+      setActionLoading(null);
     }
+  }
+
+  // 🔥 ACTUALIZAR DESDE MODAL
+  function handleUpdate(updated: Platform) {
+    setPlatforms((prev) =>
+      prev.map((p) => (p.id === updated.id ? updated : p)),
+    );
   }
 
   return (
@@ -66,7 +98,7 @@ export function PlatformList() {
       </h2>
 
       {loading ? (
-        <p className="text-sm text-gray-500">Cargando...</p>
+        <p className="text-sm text-gray-500">Cargando plataformas...</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -92,16 +124,20 @@ export function PlatformList() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={p.logoUrl}
-                        className="w-10 h-10 object-cover rounded-md border"
-                        alt="logo"
+                        className="w-12 h-12 object-contain"
+                        alt={p.name}
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-gray-100 rounded-md" />
+                      <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-400">
+                        N/A
+                      </div>
                     )}
                   </td>
 
                   {/* Nombre */}
-                  <td className="font-medium text-gray-800">{p.name}</td>
+                  <td className="font-medium text-gray-800">
+                    {p.name}
+                  </td>
 
                   {/* Código */}
                   <td className="text-gray-600">{p.code}</td>
@@ -123,15 +159,26 @@ export function PlatformList() {
                   <td className="text-right space-x-2">
                     {/* Toggle */}
                     <button
-                      onClick={() => toggleStatus(p)}
-                      className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100"
+                      disabled={actionLoading === p.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleStatus(p);
+                      }}
+                      className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100 disabled:opacity-50"
                     >
-                      {p.isActive ? "Desactivar" : "Activar"}
+                      {actionLoading === p.id
+                        ? "..."
+                        : p.isActive
+                          ? "Desactivar"
+                          : "Activar"}
                     </button>
 
                     {/* Editar */}
                     <button
-                      onClick={() => alert("Abrir modal editar")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPlatform(p);
+                      }}
                       className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100"
                     >
                       Editar
@@ -139,10 +186,14 @@ export function PlatformList() {
 
                     {/* Eliminar */}
                     <button
-                      onClick={() => handleDelete(p.id)}
-                      className="text-xs px-2 py-1 rounded-md border text-red-600 hover:bg-red-50"
+                      disabled={actionLoading === p.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(p.id);
+                      }}
+                      className="text-xs px-2 py-1 rounded-md border text-red-600 hover:bg-red-50 disabled:opacity-50"
                     >
-                      Eliminar
+                      {actionLoading === p.id ? "..." : "Eliminar"}
                     </button>
                   </td>
                 </tr>
@@ -156,6 +207,15 @@ export function PlatformList() {
             </p>
           )}
         </div>
+      )}
+
+      {/* 🔥 MODAL */}
+      {selectedPlatform && (
+        <EditPlatformModal
+          platform={selectedPlatform}
+          onClose={() => setSelectedPlatform(null)}
+          onUpdated={handleUpdate}
+        />
       )}
     </div>
   );

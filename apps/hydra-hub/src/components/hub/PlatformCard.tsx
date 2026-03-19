@@ -10,43 +10,55 @@ interface Platform {
 }
 
 export function PlatformCard({ platform }: { platform: Platform }) {
+  const handleRedirect = () => {
+    window.open(platform.url, "_blank");
+  };
+
   return (
-    <div className="card bg-white w-96 border border-zinc-200 shadow-sm transition-all duration-300 hover:border-indigo-500/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 group">
-      
-      {/* FIGURE: Contenedor de la imagen/logo */}
-      <figure className="px-10 pt-10">
-        <div className="w-20 h-20 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center p-4 transition-colors group-hover:bg-indigo-50/50 group-hover:border-indigo-100">
+    <div
+      onClick={handleRedirect}
+      className="h-75 w-96 cursor-pointer rounded-2xl border border-zinc-200 bg-white p-6
+      flex flex-col justify-between
+      shadow-sm transition-all duration-300 
+      hover:shadow-lg hover:-translate-y-1 hover:border-indigo-400/40 group"
+    >
+      {/* TOP */}
+      <div>
+        {/* Logo */}
+        <div className="flex justify-center mb-5">
           <img
-            src={platform.image} // O usa {platform.image} si viene del objeto
+            src={platform.image}
             alt={platform.name}
-            className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all"
+            className="h-24 w-auto object-contain transition-all duration-300 group-hover:scale-110"
           />
         </div>
-      </figure>
 
-      {/* CARD BODY: Texto y contenido centralizado */}
-      <div className="card-body items-center text-center">
-        <div className="flex items-center gap-2">
-          <h2 className="card-title text-zinc-900 font-bold tracking-tight">
+        {/* Title */}
+        <div className="flex items-center justify-center gap-2">
+          <h2 className="text-lg font-semibold text-zinc-900">
             {platform.name}
           </h2>
-          <ExternalLink size={16} className="text-zinc-300 group-hover:text-indigo-500 transition-colors" />
+
+          <ExternalLink
+            size={16}
+            className="text-zinc-300 group-hover:text-indigo-500 transition-colors"
+          />
         </div>
-        
-        <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2">
+
+        {/* Description */}
+        <p className="mt-2 text-sm text-zinc-500 text-center line-clamp-2 min-h-10">
           {platform.description}
         </p>
-
-        {/* CARD ACTIONS: El botón principal */}
-        <div className="card-actions w-full mt-4">
-          <button className="btn bg-zinc-900 hover:bg-indigo-600 text-white border-none w-full normal-case font-medium transition-all active:scale-95">
-            Ingresar a la plataforma
-          </button>
-        </div>
       </div>
 
-      {/* DECORACIÓN SUTIL DE FONDO */}
-      <div className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-br from-transparent to-transparent group-hover:to-indigo-50/40 transition-all duration-500" />
+      {/* BOTTOM (siempre alineado) */}
+      <div>
+        <div className="w-full text-center py-2 rounded-lg text-sm font-medium 
+        bg-zinc-900 text-white 
+        group-hover:bg-indigo-600 transition-all">
+          Ingresar
+        </div>
+      </div>
     </div>
   );
 }

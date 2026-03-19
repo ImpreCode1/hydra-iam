@@ -272,6 +272,7 @@ function resolveEffectiveRoles(user: any) {
 
   [...directRoles, ...positionRoles].forEach((role) => {
     if (role) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       rolesMap.set(role.id, role);
     }
   });
