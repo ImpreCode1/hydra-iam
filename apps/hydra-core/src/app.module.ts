@@ -17,6 +17,8 @@ import { PositionsModule } from './modules/positions/positions.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PlatformsModule } from './modules/platforms/platforms.module';
 import { MediaModule } from './modules/media/media.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -29,6 +31,10 @@ import { MediaModule } from './modules/media/media.module';
     RolesModule,
     PlatformsModule,
     MediaModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'), // siempre apunta a la raíz del proyecto
+      serveRoot: '/uploads',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

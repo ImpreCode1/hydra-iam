@@ -1,44 +1,162 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPlatforms, Platform } from "@/modules/platforms/api";
+import {
+  getPlatforms,
+  deletePlatform,
+  updatePlatform,
+} from "@/modules/platforms/api";
 
-export function PlatformList({ refreshKey }: { refreshKey: number }) {
+type Platform = {
+  id: string;
+  name: string;
+  code: string;
+  url: string;
+  logoUrl?: string;
+  isActive: boolean;
+};
+
+export function PlatformList() {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    load();
-  }, [refreshKey]);
-
-  async function load() {
+  async function fetchData() {
+    setLoading(true);
     try {
       const data = await getPlatforms();
       setPlatforms(data);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   }
 
-  if (loading) return <p>Cargando plataformas...</p>;
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  async function handleDelete(id: string) {
+    if (!confirm("¿Eliminar plataforma?")) return;
+
+    try {
+      await deletePlatform(id);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      alert("Error eliminando");
+    }
+  }
+
+  async function toggleStatus(platform: Platform) {
+    try {
+      await updatePlatform(platform.id, {
+        isActive: !platform.isActive,
+      });
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   return (
-    <div className="border p-4 rounded">
-      <h2 className="font-semibold text-lg mb-2">Plataformas</h2>
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mt-6">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        Plataformas
+      </h2>
 
-      <ul className="space-y-2">
-        {platforms.map((p) => (
-          <li key={p.id} className="border p-2 rounded">
-            <div className="font-medium">{p.name}</div>
-            <div className="text-sm text-gray-500">{p.code}</div>
-            {p.description && (
-              <div className="text-xs text-gray-400">{p.description}</div>
-            )}
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        <p className="text-sm text-gray-500">Cargando...</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-500 border-b">
+                <th className="py-2">Logo</th>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>Estado</th>
+                <th className="text-right">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {platforms.map((p) => (
+                <tr
+                  key={p.id}
+                  className="border-b hover:bg-gray-50 transition"
+                >
+                  {/* Logo */}
+                  <td className="py-2">
+                    {p.logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.logoUrl}
+                        className="w-10 h-10 object-cover rounded-md border"
+                        alt="logo"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-100 rounded-md" />
+                    )}
+                  </td>
+
+                  {/* Nombre */}
+                  <td className="font-medium text-gray-800">{p.name}</td>
+
+                  {/* Código */}
+                  <td className="text-gray-600">{p.code}</td>
+
+                  {/* Estado */}
+                  <td>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        p.isActive
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-200 text-gray-600"
+                      }`}
+                    >
+                      {p.isActive ? "Activo" : "Inactivo"}
+                    </span>
+                  </td>
+
+                  {/* Acciones */}
+                  <td className="text-right space-x-2">
+                    {/* Toggle */}
+                    <button
+                      onClick={() => toggleStatus(p)}
+                      className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100"
+                    >
+                      {p.isActive ? "Desactivar" : "Activar"}
+                    </button>
+
+                    {/* Editar */}
+                    <button
+                      onClick={() => alert("Abrir modal editar")}
+                      className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100"
+                    >
+                      Editar
+                    </button>
+
+                    {/* Eliminar */}
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="text-xs px-2 py-1 rounded-md border text-red-600 hover:bg-red-50"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {platforms.length === 0 && (
+            <p className="text-sm text-gray-500 mt-4">
+              No hay plataformas registradas
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

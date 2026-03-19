@@ -27,3 +27,5 @@ Thumbs.db
 prisma/dev.db
 
 /src/generated
+
+uploads/

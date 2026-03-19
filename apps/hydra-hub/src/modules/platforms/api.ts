@@ -59,5 +59,5 @@ export function getPlatformRoles(platformId: string) {
 }
 
 export function getMyPlatforms() {
-  return apiFetch("/platform/me/access")
+  return apiFetch("/platforms/me/access")
 }
