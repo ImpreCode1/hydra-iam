@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { logout } from "@/modules/auth/api"
-import { ChevronDown, LogOut, Users, Shield, LayoutGrid } from "lucide-react"
+import { ChevronDown, LogOut, Users, Shield, LayoutGrid, Briefcase } from "lucide-react"
 
 export function UserMenu() {
   const { user } = useAuth()
@@ -91,13 +91,13 @@ export function UserMenu() {
                   Roles
                 </button>
 
-                {/* <button
+                <button
                   onClick={() => router.push("/admin/positions")}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
                 >
                   <Briefcase className="w-4 h-4" />
                   Cargos
-                </button> */}
+                </button>
 
                 <button
                   onClick={() => router.push("/admin/platforms")}
