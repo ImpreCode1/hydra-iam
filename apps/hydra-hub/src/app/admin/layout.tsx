@@ -29,17 +29,17 @@ export default function AdminLayout({
               </Link>
 
               <Link
-                href="/admin/roles"
-                className="px-3 py-2 rounded text-gray-700 hover:bg-gray-100"
-              >
-                Roles
-              </Link>
-
-              <Link
                 href="/admin/positions"
                 className="px-3 py-2 rounded text-gray-700 hover:bg-gray-100"
               >
                 Cargos
+              </Link>
+
+              <Link
+                href="/admin/roles"
+                className="px-3 py-2 rounded text-gray-700 hover:bg-gray-100"
+              >
+                Roles
               </Link>
 
               <Link

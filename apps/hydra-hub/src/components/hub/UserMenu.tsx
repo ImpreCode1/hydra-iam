@@ -84,19 +84,19 @@ export function UserMenu() {
                 </button>
 
                 <button
-                  onClick={() => router.push("/admin/roles")}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
-                >
-                  <Shield className="w-4 h-4" />
-                  Roles
-                </button>
-
-                <button
                   onClick={() => router.push("/admin/positions")}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
                 >
                   <Briefcase className="w-4 h-4" />
                   Cargos
+                </button>
+
+                <button
+                  onClick={() => router.push("/admin/roles")}
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
+                >
+                  <Shield className="w-4 h-4" />
+                  Roles
                 </button>
 
                 <button
