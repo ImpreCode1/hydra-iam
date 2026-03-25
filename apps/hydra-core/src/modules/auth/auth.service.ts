@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * Servicio de autenticación.
  * loginWithMicrosoft: busca/crea usuario, genera JWT con roles y cargo, devuelve token + user (sin password).
@@ -23,6 +19,47 @@ import { ProfileWithAccessResponseDto } from './dto/profile-with-access.dto';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 
+const userWithRolesInclude = {
+  roles: { include: { role: true } },
+  position: {
+    include: {
+      roles: { include: { role: true } },
+      group: {
+        include: {
+          roles: { include: { role: true } },
+        },
+      },
+    },
+  },
+};
+
+type RoleEntity = {
+  id: string;
+  name: string;
+};
+
+type RoleRelation = {
+  role: RoleEntity;
+};
+
+type GroupRelation = {
+  roles: RoleRelation[];
+};
+
+type PositionRelation = {
+  roles: RoleRelation[];
+  group?: GroupRelation | null;
+};
+
+type UserWithRelations = {
+  id: string;
+  email: string;
+  name: string;
+  positionId?: string | null;
+  roles: RoleRelation[];
+  position?: PositionRelation | null;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -32,21 +69,23 @@ export class AuthService {
   ) {}
 
   async loginWithMicrosoft(msUser: MicrosoftUser) {
-    const user = await this.usersService.findOrCreateFromMicrosoft(msUser);
+    const baseUser = await this.usersService.findOrCreateFromMicrosoft(msUser);
 
-    // 🔥 Resolver roles correctamente (directos + cargo)
+    // 🔥 IMPORTANTE: recargar con includes completos
+    const user = (await this.prisma.user.findUnique({
+      where: { id: baseUser.id },
+      include: userWithRolesInclude,
+    })) as UserWithRelations;
+
     const effectiveRoles = resolveEffectiveRoles(user);
 
     const payload = {
       sub: user.id,
       email: user.email,
       name: user.name,
-      roles: effectiveRoles.map((r) => r.name), // 👈 nombres para guards simples
+      roles: effectiveRoles.map((r) => r.name),
       positionId: user.positionId ?? null,
     };
-
-    const { password, ...userWithoutPassword } = user;
-    void password;
 
     const accessToken = this.jwtService.sign(payload, {
       issuer: 'hydra-iam',
@@ -65,6 +104,9 @@ export class AuthService {
       },
     });
 
+    const { password, ...userWithoutPassword } = baseUser;
+    void password;
+
     return {
       accessToken,
       refreshToken,
@@ -77,50 +119,23 @@ export class AuthService {
   ): Promise<ProfileWithAccessResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        position: {
-          include: {
-            roles: {
-              include: {
-                role: true,
-              },
-            },
-          },
-        },
-        roles: {
-          include: {
-            role: true,
-          },
-        },
-      },
+      include: userWithRolesInclude,
     });
 
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    const rolesFromPosition = user.position?.roles.map((pr) => pr.role) ?? [];
-
-    const directRoles = user.roles.map((ur) => ur.role);
-
-    const roleMap = new Map<string, (typeof rolesFromPosition)[number]>();
-
-    for (const role of rolesFromPosition) {
-      roleMap.set(role.id, role);
-    }
-
-    for (const role of directRoles) {
-      roleMap.set(role.id, role);
-    }
-
-    const effectiveRoles = Array.from(roleMap.values());
+    const effectiveRoles = resolveEffectiveRoles(
+      user as unknown as UserWithRelations,
+    );
 
     const platforms = await this.prisma.platform.findMany({
       where: {
         roles: {
           some: {
             roleId: {
-              in: effectiveRoles.map((role) => role.id),
+              in: effectiveRoles.map((r) => r.id),
             },
           },
         },
@@ -139,7 +154,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       position: user.position ? user.position.name : null,
-      roles: effectiveRoles.map((role) => role.name),
+      roles: effectiveRoles.map((r) => r.name),
       platforms,
     };
   }
@@ -154,11 +169,19 @@ export class AuthService {
       include: { user: true },
     });
 
-    type TokenWithUser = (typeof tokens)[number];
+    type TokenWithUser = {
+      id: string;
+      tokenHash: string;
+      isRevoked: boolean;
+      expiresAt: Date;
+      user: {
+        id: string;
+      };
+    };
 
     let validToken: TokenWithUser | null = null;
 
-    for (const token of tokens) {
+    for (const token of tokens as TokenWithUser[]) {
       const isMatch = await bcrypt.compare(refreshToken, token.tokenHash);
       if (isMatch) {
         validToken = token;
@@ -174,35 +197,19 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token expired');
     }
 
-    // 🔹 BUSCAR USUARIO CON ROLES
-    const user = await this.prisma.user.findUnique({
+    const user = (await this.prisma.user.findUnique({
       where: { id: validToken.user.id },
-      include: {
-        roles: {
-          include: { role: true },
-        },
-        position: {
-          include: {
-            roles: {
-              include: { role: true },
-            },
-          },
-        },
-      },
-    });
+      include: userWithRolesInclude,
+    })) as UserWithRelations;
 
-    const rolesFromPosition =
-      user?.position?.roles.map((pr) => pr.role.name) ?? [];
-    const directRoles = user?.roles.map((ur) => ur.role.name) ?? [];
-
-    const roles = [...new Set([...rolesFromPosition, ...directRoles])];
+    const effectiveRoles = resolveEffectiveRoles(user);
 
     const payload = {
-      sub: user!.id,
-      email: user!.email,
-      name: user!.name,
-      roles,
-      positionId: user!.positionId ?? null,
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      roles: effectiveRoles.map((r) => r.name),
+      positionId: user.positionId ?? null,
     };
 
     const newAccessToken = this.jwtService.sign(payload, {
@@ -262,19 +269,17 @@ export class AuthService {
   }
 }
 
-function resolveEffectiveRoles(user: any) {
-  const directRoles = user.roles?.map((ur) => ur.role) ?? [];
+function resolveEffectiveRoles(user: UserWithRelations): RoleEntity[] {
+  const directRoles = user.roles.map((ur) => ur.role);
 
-  const positionRoles = user.position?.roles?.map((pr) => pr.role) ?? [];
+  const positionRoles = user.position?.roles.map((pr) => pr.role) ?? [];
 
-  // Merge sin duplicados por ID
-  const rolesMap = new Map<string, any>();
+  const groupRoles = user.position?.group?.roles.map((gr) => gr.role) ?? [];
 
-  [...directRoles, ...positionRoles].forEach((role) => {
-    if (role) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      rolesMap.set(role.id, role);
-    }
+  const rolesMap = new Map<string, RoleEntity>();
+
+  [...directRoles, ...positionRoles, ...groupRoles].forEach((role) => {
+    rolesMap.set(role.id, role);
   });
 
   return Array.from(rolesMap.values());
