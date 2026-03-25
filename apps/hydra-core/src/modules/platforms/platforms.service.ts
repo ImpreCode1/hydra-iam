@@ -3,6 +3,24 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 
+type PlatformEntity = {
+  id: string;
+  name: string;
+  description?: string | null;
+  logoUrl?: string | null;
+  url: string;
+  isActive: boolean;
+  deletedAt: Date | null;
+};
+
+type AccessiblePlatform = {
+  id: string;
+  name: string;
+  description?: string | null;
+  image?: string | null;
+  url: string;
+};
+
 @Injectable()
 export class PlatformsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -155,54 +173,44 @@ export class PlatformsService {
       throw new Error('Usuario no encontrado');
     }
 
-    const platformsMap = new Map<string, any>();
+    const platformsMap = new Map<string, AccessiblePlatform>();
+
+    // 🔥 helper centralizado
+    const addPlatform = (p: PlatformEntity | null | undefined) => {
+      if (!p) return;
+
+      if (p.deletedAt !== null || !p.isActive) return;
+
+      platformsMap.set(p.id, {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        image: p.logoUrl, // ✅ ahora sí válido
+        url: p.url,
+      });
+    };
 
     // directos
     user.roles.forEach((ur) => {
       ur.role.platforms.forEach((rp) => {
-        const p = rp.platform;
-
-        platformsMap.set(p.id, {
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          image: p.logoUrl,
-          url: p.url,
-        });
+        addPlatform(rp.platform);
       });
     });
 
     // cargo
     user.position?.roles.forEach((pr) => {
       pr.role.platforms.forEach((rp) => {
-        const p = rp.platform;
-
-        platformsMap.set(p.id, {
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          image: p.logoUrl,
-          url: p.url,
-        });
+        addPlatform(rp.platform);
       });
     });
 
-    // 🔥 grupo
+    // grupo
     user.position?.group?.roles.forEach((gr) => {
       gr.role.platforms.forEach((rp) => {
-        const p = rp.platform;
-
-        platformsMap.set(p.id, {
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          image: p.logoUrl,
-          url: p.url,
-        });
+        addPlatform(rp.platform);
       });
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return Array.from(platformsMap.values());
   }
 

@@ -208,19 +208,19 @@ export default function UsersPage() {
         </span>
       ),
     },
-    {
-      header: "Acciones",
-      render: (user: User) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => toggleStatus(user)}
-            className="text-xs px-3 py-1 rounded-md bg-gray-100"
-          >
-            {user.isActive ? "Desactivar" : "Activar"}
-          </button>
-        </div>
-      ),
-    },
+    // {
+    //   header: "Acciones",
+    //   render: (user: User) => (
+    //     <div className="flex gap-2">
+    //       <button
+    //         onClick={() => toggleStatus(user)}
+    //         className="text-xs px-3 py-1 rounded-md bg-gray-100"
+    //       >
+    //         {user.isActive ? "Desactivar" : "Activar"}
+    //       </button>
+    //     </div>
+    //   ),
+    // },
   ];
 
   /* =========================

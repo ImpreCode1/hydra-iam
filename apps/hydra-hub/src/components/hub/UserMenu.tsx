@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { logout } from "@/modules/auth/api"
-import { ChevronDown, LogOut, Users, Shield, LayoutGrid, Briefcase } from "lucide-react"
+import { ChevronDown, LogOut, Users, Shield, LayoutGrid, Briefcase, User } from "lucide-react"
 
 export function UserMenu() {
   const { user } = useAuth()
@@ -79,7 +79,7 @@ export function UserMenu() {
                   onClick={() => router.push("/admin/users")}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
                 >
-                  <Users className="w-4 h-4" />
+                  <User className="w-4 h-4" />
                   Usuarios
                 </button>
 
