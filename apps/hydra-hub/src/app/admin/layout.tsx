@@ -36,6 +36,13 @@ export default function AdminLayout({
               </Link>
 
               <Link
+                href="/admin/groups"
+                className="px-3 py-2 rounded text-gray-700 hover:bg-gray-100"
+              >
+                Grupos
+              </Link>
+
+              <Link
                 href="/admin/roles"
                 className="px-3 py-2 rounded text-gray-700 hover:bg-gray-100"
               >

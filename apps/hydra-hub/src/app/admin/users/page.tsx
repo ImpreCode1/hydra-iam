@@ -212,13 +212,6 @@ export default function UsersPage() {
       render: (user: User) => (
         <div className="flex gap-2">
           <button
-            onClick={() => openRolesModal(user)}
-            className="text-xs px-3 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200"
-          >
-            Roles
-          </button>
-
-          <button
             onClick={() => toggleStatus(user)}
             className="text-xs px-3 py-1 rounded-md bg-gray-100"
           >
@@ -257,60 +250,6 @@ export default function UsersPage() {
       <div className="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm">
         <DataTable data={filteredUsers} columns={columns} loading={loading} />
       </div>
-
-      {/* MODAL */}
-      {selectedUser && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white w-130 rounded-xl shadow-lg p-6 space-y-4">
-            <div className="flex justify-between">
-              <h2 className="text-lg font-semibold">
-                Roles de {selectedUser.name}
-              </h2>
-              <button onClick={closeModal}>✕</button>
-            </div>
-
-            {loadingRoles ? (
-              <p>Cargando...</p>
-            ) : (
-              <>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {userRoles.length === 0 && (
-                    <p className="text-sm text-gray-400">No tiene roles</p>
-                  )}
-
-                  {userRoles.map((role, index) => (
-                    <div
-                      key={`${role.id}-${index}`}
-                      className="flex justify-between items-center border rounded-md px-3 py-2"
-                    >
-                      <span className="text-sm">{role.name}</span>
-
-                      <button
-                        onClick={() => removeRole(role.id)}
-                        className="text-xs text-red-500"
-                      >
-                        Quitar
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <select
-                  onChange={(e) => addRole(e.target.value)}
-                  className="w-full border rounded-md px-2 py-2 text-sm"
-                >
-                  <option value="">Agregar rol...</option>
-                  {allRoles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

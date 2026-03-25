@@ -112,9 +112,7 @@ export class PlatformsService {
             role: {
               include: {
                 platforms: {
-                  include: {
-                    platform: true,
-                  },
+                  include: { platform: true },
                 },
               },
             },
@@ -127,8 +125,21 @@ export class PlatformsService {
                 role: {
                   include: {
                     platforms: {
+                      include: { platform: true },
+                    },
+                  },
+                },
+              },
+            },
+            group: {
+              include: {
+                roles: {
+                  include: {
+                    role: {
                       include: {
-                        platform: true,
+                        platforms: {
+                          include: { platform: true },
+                        },
                       },
                     },
                   },
@@ -144,9 +155,9 @@ export class PlatformsService {
       throw new Error('Usuario no encontrado');
     }
 
-    const platformsMap = new Map();
+    const platformsMap = new Map<string, any>();
 
-    // Plataformas por roles directos
+    // directos
     user.roles.forEach((ur) => {
       ur.role.platforms.forEach((rp) => {
         const p = rp.platform;
@@ -161,9 +172,24 @@ export class PlatformsService {
       });
     });
 
-    // Plataformas por cargo
+    // cargo
     user.position?.roles.forEach((pr) => {
       pr.role.platforms.forEach((rp) => {
+        const p = rp.platform;
+
+        platformsMap.set(p.id, {
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          image: p.logoUrl,
+          url: p.url,
+        });
+      });
+    });
+
+    // 🔥 grupo
+    user.position?.group?.roles.forEach((gr) => {
+      gr.role.platforms.forEach((rp) => {
         const p = rp.platform;
 
         platformsMap.set(p.id, {

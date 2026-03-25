@@ -92,6 +92,14 @@ export function UserMenu() {
                 </button>
 
                 <button
+                  onClick={() => router.push("/admin/groups")}
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
+                >
+                  <Users className="w-4 h-4" />
+                  Grupos
+                </button>
+
+                <button
                   onClick={() => router.push("/admin/roles")}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
                 >
