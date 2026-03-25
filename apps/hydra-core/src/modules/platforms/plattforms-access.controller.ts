@@ -11,7 +11,6 @@ export class PlatformsAccessController {
 
   @Get('me/access')
   getMyPlatforms(@Request() req: any) {
-    console.log(req.user);
     return this.platformsService.getAccessiblePlatforms(req.user.id);
   }
 }

@@ -17,15 +17,18 @@ export function PlatformCard({ platform }: { platform: Platform }) {
   return (
     <div
       onClick={handleRedirect}
-      className="h-75 w-96 cursor-pointer rounded-2xl border border-zinc-200 bg-white p-6
-      flex flex-col justify-between
+      className="relative h-75 w-96 cursor-pointer rounded-2xl border border-zinc-200 bg-white p-6
+      flex flex-col justify-between overflow-hidden
       shadow-sm transition-all duration-300 
-      hover:shadow-lg hover:-translate-y-1 hover:border-indigo-400/40 group"
+      hover:shadow-xl hover:-translate-y-1 hover:border-indigo-400/40 group"
     >
-      {/* TOP */}
-      <div>
+      {/* 🔥 Glow / gradient sutil */}
+      <div className="absolute inset-0 bg-linear-to-br from-transparent via-transparent to-indigo-50/40 opacity-0 group-hover:opacity-100 transition duration-500" />
+
+      {/* 🔝 TOP */}
+      <div className="relative z-10">
         {/* Logo */}
-        <div className="flex justify-center mb-5">
+        <div className="flex justify-center mb-6">
           <img
             src={platform.image}
             alt={platform.name}
@@ -35,7 +38,7 @@ export function PlatformCard({ platform }: { platform: Platform }) {
 
         {/* Title */}
         <div className="flex items-center justify-center gap-2">
-          <h2 className="text-lg font-semibold text-zinc-900">
+          <h2 className="text-lg font-semibold text-zinc-900 tracking-tight">
             {platform.name}
           </h2>
 
@@ -46,19 +49,27 @@ export function PlatformCard({ platform }: { platform: Platform }) {
         </div>
 
         {/* Description */}
-        <p className="mt-2 text-sm text-zinc-500 text-center line-clamp-2 min-h-10">
-          {platform.description}
-        </p>
+        <div className="relative mt-2">
+          <p className="text-sm text-zinc-600 text-center line-clamp-2 group-hover:line-clamp-none transition-all duration-300">
+            {platform.description}
+          </p>
+        </div>
       </div>
 
-      {/* BOTTOM (siempre alineado) */}
-      <div>
-        <div className="w-full text-center py-2 rounded-lg text-sm font-medium 
-        bg-zinc-900 text-white 
-        group-hover:bg-indigo-600 transition-all">
+      {/* 🔽 BOTTOM */}
+      <div className="relative z-10">
+        <div
+          className="w-full text-center py-2 rounded-lg text-sm font-medium 
+          bg-zinc-900 text-white 
+          transition-all duration-300
+          group-hover:bg-indigo-600 group-hover:shadow-md"
+        >
           Ingresar
         </div>
       </div>
+
+      {/* 🔥 Border glow animado */}
+      <div className="absolute inset-0 rounded-2xl pointer-events-none border border-transparent group-hover:border-indigo-400/40 transition-all duration-300" />
     </div>
   );
 }
