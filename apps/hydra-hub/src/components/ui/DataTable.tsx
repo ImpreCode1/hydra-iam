@@ -8,6 +8,7 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   loading?: boolean;
   emptyMessage?: string;
+  rowClassName?: string | ((row: T) => string);
 }
 
 export function DataTable<T>({

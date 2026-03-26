@@ -6,11 +6,17 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { PositionGroupsService } from './position-groups.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
+import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/guards/roles.decorator';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN')
 @Controller('position-groups')
 export class PositionGroupsController {
   constructor(private readonly service: PositionGroupsService) {}

@@ -13,6 +13,7 @@ import {
 } from "@/modules/users/api";
 import { DataTable } from "@/components/ui/DataTable";
 import { apiFetch } from "@/lib/api-client";
+import { Search } from "lucide-react";
 
 /* =========================
    ROLES
@@ -20,6 +21,55 @@ import { apiFetch } from "@/lib/api-client";
 
 async function getAllRoles(): Promise<Role[]> {
   return apiFetch("/roles");
+}
+
+/* =========================
+   HELPERS UI
+========================= */
+
+function RolesCell({ roles }: { roles: Role[] }) {
+  const MAX_VISIBLE = 2;
+
+  if (!roles || roles.length === 0) {
+    return <span className="text-xs text-gray-400">Sin roles</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-1">
+      {roles.slice(0, MAX_VISIBLE).map((role) => (
+        <span
+          key={role.id}
+          className="px-2 py-1 text-xs rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200"
+        >
+          {role.name}
+        </span>
+      ))}
+
+      {roles.length > MAX_VISIBLE && (
+        <span
+          title={roles.map((r) => r.name).join(", ")}
+          className="text-xs text-gray-500 cursor-default"
+        >
+          +{roles.length - MAX_VISIBLE}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function StatusBadge({ isActive }: { isActive: boolean }) {
+  return (
+    <span
+      className={`px-2 py-1 text-xs font-medium rounded-md border flex items-center gap-1 w-fit ${
+        isActive
+          ? "bg-green-100 text-green-700 border-green-200"
+          : "bg-red-100 text-red-700 border-red-200"
+      }`}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+      {isActive ? "Activo" : "Inactivo"}
+    </span>
+  );
 }
 
 /* =========================
@@ -90,72 +140,6 @@ export default function UsersPage() {
   }
 
   /* =========================
-     ROLES MODAL
-  ========================= */
-
-  async function openRolesModal(user: User) {
-    try {
-      setSelectedUser(user);
-      setLoadingRoles(true);
-
-      const [rolesFromApiRaw, all] = await Promise.all([
-        getUserRoles(user.id),
-        getAllRoles(),
-      ]);
-
-      const rolesFromApi = rolesFromApiRaw as unknown as string[];
-
-      /**
-       * 🔥 AQUÍ ESTÁ LA CLAVE
-       * convertimos string[] → Role[]
-       */
-      const mappedRoles: Role[] = rolesFromApi
-        .map((name) => {
-          const role = all.find((r) => r.name === name);
-
-          if (!role) return null;
-
-          return role; // ya tiene id correcto
-        })
-        .filter(Boolean) as Role[];
-
-      setUserRoles(mappedRoles);
-      setAllRoles(all);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingRoles(false);
-    }
-  }
-
-  function closeModal() {
-    setSelectedUser(null);
-    setUserRoles([]);
-  }
-
-  async function addRole(roleId: string) {
-    if (!selectedUser || !roleId) return;
-
-    try {
-      await assignRoleToUser(selectedUser.id, roleId);
-      await openRolesModal(selectedUser); // recargar
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function removeRole(roleId: string) {
-    if (!selectedUser) return;
-
-    try {
-      await removeRoleFromUser(selectedUser.id, roleId);
-      await openRolesModal(selectedUser); // recargar
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  /* =========================
      COLUMNS
   ========================= */
 
@@ -173,40 +157,19 @@ export default function UsersPage() {
     },
     {
       header: "Cargo",
-      render: (user: User) => user.position?.name || "—",
+      render: (user: User) => (
+        <span className="text-sm text-gray-700">
+          {user.position?.name || "—"}
+        </span>
+      ),
     },
     {
       header: "Roles",
-      render: (user: User) => (
-        <div className="flex flex-wrap gap-2">
-          {user.roles?.length === 0 && (
-            <span className="text-xs text-gray-400">Sin roles</span>
-          )}
-
-          {user.roles?.map((role, index) => (
-            <span
-              key={`${role.id}-${user.id}-${index}`}
-              className="px-2 py-1 text-xs rounded-md bg-purple-50 text-purple-700 border border-purple-200"
-            >
-              {role.name}
-            </span>
-          ))}
-        </div>
-      ),
+      render: (user: User) => <RolesCell roles={user.roles || []} />,
     },
     {
       header: "Estado",
-      render: (user: User) => (
-        <span
-          className={`px-2 py-1 text-xs font-medium rounded-md ${
-            user.isActive
-              ? "bg-green-100 text-green-700 border border-green-200"
-              : "bg-red-100 text-red-700 border border-red-200"
-          }`}
-        >
-          {user.isActive ? "Activo" : "Inactivo"}
-        </span>
-      ),
+      render: (user: User) => <StatusBadge isActive={user.isActive} />,
     },
     // {
     //   header: "Acciones",
@@ -214,7 +177,7 @@ export default function UsersPage() {
     //     <div className="flex gap-2">
     //       <button
     //         onClick={() => toggleStatus(user)}
-    //         className="text-xs px-3 py-1 rounded-md bg-gray-100"
+    //         className="text-xs px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 transition"
     //       >
     //         {user.isActive ? "Desactivar" : "Activar"}
     //       </button>
@@ -229,27 +192,38 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      {/* HEADER */}
+      <div className="space-y-1">
         <h1 className="text-2xl font-semibold text-gray-900">
           Gestión de Usuarios
         </h1>
-        <p className="text-gray-600">
-          Administra los usuarios registrados en Hydra
+        <p className="text-sm text-gray-500">
+          Administra accesos, roles y estado de los usuarios en Hydra
         </p>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <input
-          type="text"
-          placeholder="Buscar por nombre o email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-        />
+      {/* SEARCH */}
+      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2">
+          <Search className="w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar usuario por nombre o email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full outline-none text-sm"
+          />
+        </div>
       </div>
 
+      {/* TABLE */}
       <div className="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm">
-        <DataTable data={filteredUsers} columns={columns} loading={loading} />
+        <DataTable
+          data={filteredUsers}
+          columns={columns}
+          loading={loading}
+          rowClassName="hover:bg-gray-50 transition"
+        />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { getRoles, createRole, deleteRole } from "@/modules/roles/api";
 import { DataTable } from "@/components/ui/DataTable";
 import { RolePlatformAccess } from "@/components/roles/RolePlatformAccess";
+import { Shield, Trash2, Plus } from "lucide-react";
 
 interface Role {
   id: string;
@@ -50,7 +51,6 @@ export default function RolesPage() {
       setNewRole({ name: "", description: "" });
       await loadRoles();
 
-      // feedback simple
       alert("Rol creado correctamente");
     } catch (err) {
       console.error(err);
@@ -73,33 +73,39 @@ export default function RolesPage() {
   const columns = useMemo(
     () => [
       {
-        header: "Nombre",
+        header: "Rol",
         render: (role: Role) => (
-          <span className="font-medium text-gray-900">{role.name}</span>
-        ),
-      },
-      {
-        header: "Descripción",
-        render: (role: Role) => (
-          <span className="text-gray-600">{role.description || "—"}</span>
+          <div className="flex flex-col">
+            <span className="font-semibold text-gray-900">
+              {role.name}
+            </span>
+            <span className="text-xs text-gray-500">
+              {role.description || "Sin descripción"}
+            </span>
+          </div>
         ),
       },
       {
         header: "Acciones",
         render: (role: Role) => (
-          <div className="flex gap-3">
+          <div className="flex items-center gap-2">
+            
+            {/* PERMISOS */}
             <button
               onClick={() => setSelectedRoleId(role.id)}
-              className="text-indigo-600 hover:underline"
+              className="group p-2 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 transition"
+              title="Gestionar permisos"
             >
-              Permisos
+              <Shield className="w-4 h-4 text-gray-600 group-hover:text-indigo-600" />
             </button>
 
+            {/* ELIMINAR */}
             <button
               onClick={() => handleDeleteRole(role.id)}
-              className="text-red-600 hover:underline"
+              className="group p-2 rounded-lg border border-gray-200 hover:bg-red-50 hover:border-red-200 transition"
+              title="Eliminar rol"
             >
-              Eliminar
+              <Trash2 className="w-4 h-4 text-gray-600 group-hover:text-red-600" />
             </button>
           </div>
         ),
@@ -111,62 +117,67 @@ export default function RolesPage() {
   return (
     <div className="space-y-6">
       {/* HEADER */}
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Gestión de Roles
-          </h1>
-
-          <p className="text-gray-600">Administra los roles del sistema</p>
-        </div>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Gestión de Roles
+        </h1>
+        <p className="text-sm text-gray-500">
+          Administra los roles y sus permisos dentro de Hydra
+        </p>
       </div>
 
       {/* CREATE ROLE */}
+      <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+        <div className="flex flex-col md:flex-row gap-3">
+          
+          <input
+            type="text"
+            placeholder="Nombre del rol"
+            value={newRole.name}
+            onChange={(e) =>
+              setNewRole({ ...newRole, name: e.target.value })
+            }
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
 
-      <div className="bg-white border border-gray-200 rounded-lg p-4 flex gap-4">
-        <input
-          type="text"
-          placeholder="Nombre del rol"
-          value={newRole.name}
-          onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-1/3"
-        />
+          <input
+            type="text"
+            placeholder="Descripción"
+            value={newRole.description}
+            onChange={(e) =>
+              setNewRole({ ...newRole, description: e.target.value })
+            }
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
 
-        <input
-          type="text"
-          placeholder="Descripción"
-          value={newRole.description}
-          onChange={(e) =>
-            setNewRole({ ...newRole, description: e.target.value })
-          }
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-1/2"
-        />
-
-        <button
-          onClick={handleCreateRole}
-          disabled={creating}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-50"
-        >
-          {creating ? "Creando..." : "Crear"}
-        </button>
+          <button
+            onClick={handleCreateRole}
+            disabled={creating}
+            className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition disabled:opacity-50"
+          >
+            <Plus className="w-4 h-4" />
+            {creating ? "Creando..." : "Crear"}
+          </button>
+        </div>
       </div>
 
       {/* TABLE */}
-
-      <DataTable
-        data={roles}
-        columns={columns}
-        loading={loading}
-        emptyMessage="No hay roles registrados"
-      />
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <DataTable
+          data={roles}
+          columns={columns}
+          loading={loading}
+          emptyMessage="No hay roles registrados"
+        />
+      </div>
 
       {/* PERMISSIONS PANEL */}
-
       {selectedRoleId && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Permisos del rol</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Permisos del rol
+            </h2>
 
             <button
               onClick={() => setSelectedRoleId(null)}
