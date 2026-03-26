@@ -16,7 +16,7 @@ import { CreatePlatformDto } from './dto/create-platform.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
-@Controller('platforms')
+@Controller('platform')
 export class PlatformsController {
   constructor(private readonly platformsService: PlatformsService) {}
 

@@ -3,6 +3,24 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 
+type PlatformEntity = {
+  id: string;
+  name: string;
+  description?: string | null;
+  logoUrl?: string | null;
+  url: string;
+  isActive: boolean;
+  deletedAt: Date | null;
+};
+
+type AccessiblePlatform = {
+  id: string;
+  name: string;
+  description?: string | null;
+  image?: string | null;
+  url: string;
+};
+
 @Injectable()
 export class PlatformsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -104,39 +122,96 @@ export class PlatformsService {
   }
 
   async getAccessiblePlatforms(userId: string) {
-    // 1️⃣ Obtener usuario con cargo y roles directos
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                platforms: {
+                  include: { platform: true },
+                },
+              },
+            },
+          },
+        },
         position: {
           include: {
-            roles: true,
+            roles: {
+              include: {
+                role: {
+                  include: {
+                    platforms: {
+                      include: { platform: true },
+                    },
+                  },
+                },
+              },
+            },
+            group: {
+              include: {
+                roles: {
+                  include: {
+                    role: {
+                      include: {
+                        platforms: {
+                          include: { platform: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
-        roles: true,
       },
     });
 
-    if (!user) return [];
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
 
-    // 2️⃣ Recolectar roles
-    const positionRoles = user.position?.roles.map((pr) => pr.roleId) ?? [];
+    const platformsMap = new Map<string, AccessiblePlatform>();
 
-    const directRoles = user.roles.map((ur) => ur.roleId);
+    // 🔥 helper centralizado
+    const addPlatform = (p: PlatformEntity | null | undefined) => {
+      if (!p) return;
 
-    const allRoleIds = [...new Set([...positionRoles, ...directRoles])];
+      if (p.deletedAt !== null || !p.isActive) return;
 
-    // 3️⃣ Buscar plataformas asociadas
-    return this.prisma.platform.findMany({
-      where: {
-        isActive: true,
-        roles: {
-          some: {
-            roleId: { in: allRoleIds },
-          },
-        },
-      },
+      platformsMap.set(p.id, {
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        image: p.logoUrl, // ✅ ahora sí válido
+        url: p.url,
+      });
+    };
+
+    // directos
+    user.roles.forEach((ur) => {
+      ur.role.platforms.forEach((rp) => {
+        addPlatform(rp.platform);
+      });
     });
+
+    // cargo
+    user.position?.roles.forEach((pr) => {
+      pr.role.platforms.forEach((rp) => {
+        addPlatform(rp.platform);
+      });
+    });
+
+    // grupo
+    user.position?.group?.roles.forEach((gr) => {
+      gr.role.platforms.forEach((rp) => {
+        addPlatform(rp.platform);
+      });
+    });
+
+    return Array.from(platformsMap.values());
   }
 
   private generateRandomSecret(): string {

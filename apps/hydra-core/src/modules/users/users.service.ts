@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * Servicio de usuarios.
  *
@@ -18,6 +22,31 @@ import { PrismaService } from '../prisma/prisma.service';
 import { MicrosoftUser } from '../auth/interfaces/microsoft-user.interface';
 import { PositionsService } from '../positions/positions.service';
 
+type RoleWithPlatform = {
+  id: string;
+  name: string;
+  platforms: {
+    platform: {
+      id: string;
+      name: string;
+    };
+  }[];
+};
+
+type RoleRelation = {
+  role: RoleWithPlatform;
+};
+
+type GroupRelation = {
+  roles: RoleRelation[];
+};
+
+type PositionWithRelations = {
+  id: string;
+  name: string;
+  roles: RoleRelation[];
+  group?: GroupRelation | null;
+};
 /** Usuario con roles incluidos para auth */
 export interface UserWithRoles {
   id: string;
@@ -38,6 +67,20 @@ export interface UserWithRoles {
   updatedAt?: Date;
 }
 
+const userWithRolesInclude = {
+  roles: { include: { role: true } },
+  position: {
+    include: {
+      roles: { include: { role: true } },
+      group: {
+        include: {
+          roles: { include: { role: true } },
+        },
+      },
+    },
+  },
+};
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -56,15 +99,9 @@ export class UsersService {
       where: {
         OR: [{ azureOid: msUser.azureOid }, { email: msUser.email }],
       },
-      include: {
-        roles: { include: { role: true } },
-        position: true,
-      },
+      include: userWithRolesInclude,
     });
 
-    // =========================
-    // USUARIO YA EXISTE
-    // =========================
     if (existingUser) {
       if (!existingUser.isActive || existingUser.deletedAt) {
         throw new UnauthorizedException('Usuario desactivado');
@@ -85,19 +122,13 @@ export class UsersService {
             name: msUser.name,
             email: msUser.email,
           },
-          include: {
-            roles: { include: { role: true } },
-            position: true,
-          },
+          include: userWithRolesInclude,
         });
       }
 
       return existingUser as UserWithRoles;
     }
 
-    // =========================
-    // USUARIO NUEVO
-    // =========================
     const newUser = await this.prisma.user.create({
       data: {
         name: msUser.name,
@@ -108,7 +139,6 @@ export class UsersService {
       },
     });
 
-    // 🔥 Buscar rol USER
     const defaultRole = await this.prisma.role.findUnique({
       where: { name: 'USER' },
     });
@@ -129,35 +159,101 @@ export class UsersService {
       });
     }
 
-    // 🔥 Retornar usuario con roles incluidos
-    const userWithRoles = await this.prisma.user.findUnique({
+    return (await this.prisma.user.findUnique({
       where: { id: newUser.id },
-      include: {
-        roles: { include: { role: true } },
-        position: true,
-      },
-    });
-
-    return userWithRoles as UserWithRoles;
+      include: userWithRolesInclude,
+    })) as UserWithRoles;
   }
 
   async findAll() {
-    return this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       where: { deletedAt: null },
       include: {
-        position: true,
+        position: {
+          include: {
+            roles: {
+              include: {
+                role: {
+                  include: {
+                    platforms: { include: { platform: true } },
+                  },
+                },
+              },
+            },
+            group: {
+              include: {
+                roles: {
+                  include: {
+                    role: {
+                      include: {
+                        platforms: { include: { platform: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        roles: {
+          include: {
+            role: {
+              include: {
+                platforms: { include: { platform: true } },
+              },
+            },
+          },
+        },
       },
       orderBy: { name: 'asc' },
+    });
+
+    return users.map((u) => {
+      const position = u.position as PositionWithRelations | null;
+
+      const directRoles: RoleWithPlatform[] = u.roles.map(
+        (r: RoleRelation) => r.role,
+      );
+
+      const positionRoles: RoleWithPlatform[] =
+        position?.roles.map((r: RoleRelation) => r.role) ?? [];
+
+      const groupRoles: RoleWithPlatform[] =
+        position?.group?.roles.map((r: RoleRelation) => r.role) ?? [];
+
+      const rolesMap = new Map<string, RoleWithPlatform>();
+
+      [...directRoles, ...positionRoles, ...groupRoles].forEach((role) => {
+        rolesMap.set(role.id, role);
+      });
+
+      const platformsMap = new Map<string, { id: string; name: string }>();
+
+      [...directRoles, ...positionRoles, ...groupRoles].forEach((role) => {
+        role.platforms.forEach((p) => {
+          platformsMap.set(p.platform.id, {
+            id: p.platform.id,
+            name: p.platform.name,
+          });
+        });
+      });
+
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        isActive: u.isActive,
+        position: position ? { id: position.id, name: position.name } : null,
+        roles: Array.from(rolesMap.values()),
+        platforms: Array.from(platformsMap.values()),
+      };
     });
   }
 
   async findById(id: string) {
     return this.prisma.user.findUnique({
       where: { id },
-      include: {
-        position: true,
-        roles: { include: { role: true } },
-      },
+      include: userWithRolesInclude,
     });
   }
 
@@ -179,14 +275,7 @@ export class UsersService {
   async resolveEffectiveRoles(userId: string): Promise<string[]> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        roles: { include: { role: true } },
-        position: {
-          include: {
-            roles: { include: { role: true } },
-          },
-        },
-      },
+      include: userWithRolesInclude,
     });
 
     if (!user) {
@@ -194,10 +283,11 @@ export class UsersService {
     }
 
     const directRoles = user.roles.map((r) => r.role.name);
-
     const positionRoles = user.position?.roles.map((r) => r.role.name) ?? [];
+    const groupRoles =
+      user.position?.group?.roles.map((r) => r.role.name) ?? [];
 
-    return [...new Set([...directRoles, ...positionRoles])];
+    return [...new Set([...directRoles, ...positionRoles, ...groupRoles])];
   }
 
   async assignRole(userId: string, roleId: string) {

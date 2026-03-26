@@ -18,16 +18,16 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  password  String?  @map("password_hash") // Opcional (por si algún día se necesita local)
+  password  String?  @map("password_hash")
   azureOid  String?  @unique @map("azure_oid")
 
   isActive  Boolean  @default(true)
   deletedAt DateTime? @map("deleted_at")
 
   positionId String? @map("cargo_id")
-  position   Position? @relation(fields: [positionId], references: [id])
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
 
-  roles      UserRole[]
+  roles         UserRole[]
   refreshTokens RefreshToken[]
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -44,6 +44,9 @@ model Position {
   name        String   @unique
   description String?
 
+  groupId String? @map("group_id")
+  group   PositionGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
   deletedAt DateTime? @map("deleted_at")
 
   roles PositionRole[]
@@ -52,7 +55,22 @@ model Position {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([groupId]) // 🔥 IMPORTANTE
   @@map("positions")
+}
+
+model PositionGroup {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+
+  positions Position[]
+  roles     PositionGroupRole[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("position_groups")
 }
 
 model Role {
@@ -65,11 +83,24 @@ model Role {
   positions PositionRole[]
   users     UserRole[]
   platforms PlatformRole[]
+  groups    PositionGroupRole[] // 🔥 RELACIÓN INVERSA
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("roles")
+}
+
+model PositionGroupRole {
+  groupId String @map("group_id")
+  roleId  String @map("role_id")
+
+  group PositionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  role  Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, roleId])
+  @@index([roleId]) // 🔥 mejora queries
+  @@map("position_group_role")
 }
 
 model Platform {
@@ -93,12 +124,23 @@ model Platform {
   @@map("platforms")
 }
 
+model PlatformRole {
+  platformId String @map("plataforma_id")
+  roleId     String @map("rol_id")
+
+  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  role     Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([platformId, roleId])
+  @@map("plataforma_rol")
+}
+
 model UserRole {
   userId String @map("usuario_id")
   roleId String @map("rol_id")
 
-  user User @relation(fields: [userId], references: [id])
-  role Role @relation(fields: [roleId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
   @@map("usuario_rol")
@@ -108,22 +150,11 @@ model PositionRole {
   positionId String @map("cargo_id")
   roleId     String @map("rol_id")
 
-  position Position @relation(fields: [positionId], references: [id])
-  role     Role     @relation(fields: [roleId], references: [id])
+  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  role     Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([positionId, roleId])
   @@map("cargo_rol")
-}
-
-model PlatformRole {
-  platformId String @map("plataforma_id")
-  roleId     String @map("rol_id")
-
-  platform Platform @relation(fields: [platformId], references: [id])
-  role     Role     @relation(fields: [roleId], references: [id])
-
-  @@id([platformId, roleId])
-  @@map("plataforma_rol")
 }
 
 model RefreshToken {
@@ -148,10 +179,10 @@ model ServiceClient {
   clientId     String   @unique
   clientSecret String
   isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  platformId   String?  @unique
-  platform     Platform? @relation(fields: [platformId], references: [id])
+  platformId String?  @unique
+  platform   Platform? @relation(fields: [platformId], references: [id], onDelete: SetNull)
 
   @@map("service_clients")
 }
