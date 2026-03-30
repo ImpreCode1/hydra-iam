@@ -5,7 +5,7 @@
  * Requerido cuando useCookieInsteadOfSession=true: passport-azure-ad
  * necesita res para escribir las cookies de state/nonce.
  */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 @Injectable()

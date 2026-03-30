@@ -1,17 +1,24 @@
 /* eslint-disable @next/next/no-img-element */
 import { ExternalLink } from "lucide-react";
+import { accessPlatform } from "@/modules/platforms/api";
 
 interface Platform {
   id: string;
   name: string;
+  code: string;
   description: string;
   image: string;
   url: string;
 }
 
 export function PlatformCard({ platform }: { platform: Platform }) {
-  const handleRedirect = () => {
-    window.open(platform.url, "_blank");
+  const handleRedirect = async () => {
+    try {
+      await accessPlatform(platform.code);
+    } catch (error) {
+      console.error("Error al acceder a la plataforma:", error);
+      alert("No tienes acceso a esta plataforma");
+    }
   };
 
   return (

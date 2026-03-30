@@ -8,6 +8,7 @@ import { getMyPlatforms } from "@/modules/platforms/api"
 interface Platform {
   id: string
   name: string
+  code: string
   description: string
   image: string
   url: string

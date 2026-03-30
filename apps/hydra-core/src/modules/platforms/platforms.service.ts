@@ -1,11 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+
+type RoleEntity = {
+  id: string;
+  name: string;
+};
 
 type PlatformEntity = {
   id: string;
   name: string;
+  code: string;
   description?: string | null;
   logoUrl?: string | null;
   url: string;
@@ -16,6 +23,7 @@ type PlatformEntity = {
 type AccessiblePlatform = {
   id: string;
   name: string;
+  code: string;
   description?: string | null;
   image?: string | null;
   url: string;
@@ -23,7 +31,10 @@ type AccessiblePlatform = {
 
 @Injectable()
 export class PlatformsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async create(data: {
     name: string;
@@ -82,7 +93,7 @@ export class PlatformsService {
   async update(id: string, data: any) {
     return this.prisma.platform.update({
       where: { id },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
       data,
     });
   }
@@ -184,6 +195,7 @@ export class PlatformsService {
       platformsMap.set(p.id, {
         id: p.id,
         name: p.name,
+        code: p.code,
         description: p.description,
         image: p.logoUrl, // ✅ ahora sí válido
         url: p.url,
@@ -216,5 +228,83 @@ export class PlatformsService {
 
   private generateRandomSecret(): string {
     return randomBytes(32).toString('hex'); // 64 caracteres seguros
+  }
+
+  async generatePlatformAccessToken(userId: string, platformCode: string) {
+    const accessiblePlatforms = await this.getAccessiblePlatforms(userId);
+
+    const hasAccess = accessiblePlatforms.some((p) => p.code === platformCode);
+
+    if (!hasAccess) {
+      throw new ForbiddenException('No tienes acceso a esta plataforma');
+    }
+
+    const platformData = await this.prisma.platform.findUnique({
+      where: { code: platformCode },
+      select: { id: true, url: true, isActive: true, deletedAt: true },
+    });
+
+    if (!platformData || !platformData.isActive || platformData.deletedAt) {
+      throw new ForbiddenException('Plataforma no disponible');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        roles: { include: { role: true } },
+        position: {
+          include: {
+            roles: { include: { role: true } },
+            group: {
+              include: {
+                roles: { include: { role: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const effectiveRoles = this.resolveEffectiveRoles(user);
+
+    const positionRoles: RoleEntity[] = (user?.position?.roles ?? []).map(
+      (pr: any) => pr.role as RoleEntity,
+    );
+    const groupRoles: RoleEntity[] = (user?.position?.group?.roles ?? []).map(
+      (gr: any) => gr.role as RoleEntity,
+    );
+
+    const allRoles: RoleEntity[] = [
+      ...effectiveRoles,
+      ...positionRoles,
+      ...groupRoles,
+    ];
+    const uniqueRoles = Array.from(
+      new Map(allRoles.map((r: RoleEntity) => [r.id, r])).values(),
+    );
+
+    const payload = {
+      sub: userId,
+      email: user?.email,
+      name: user?.name,
+      roles: uniqueRoles.map((r: RoleEntity) => r.name),
+      positionId: user?.positionId ?? null,
+      platform: platformCode,
+    };
+
+    const token = this.jwtService.sign(payload, {
+      issuer: 'hydra-iam',
+      audience: 'internal-platforms',
+      expiresIn: '15m',
+    });
+
+    return {
+      redirectUrl: `${platformData.url}?token=${token}`,
+      token,
+    };
+  }
+
+  private resolveEffectiveRoles(user: any): RoleEntity[] {
+    return (user?.roles ?? []).map((ur: any) => ur.role as RoleEntity);
   }
 }
