@@ -17,7 +17,7 @@ export function PlatformCard({ platform }: { platform: Platform }) {
       await accessPlatform(platform.code);
     } catch (error) {
       console.error("Error al acceder a la plataforma:", error);
-      alert("No tienes acceso a esta plataforma");
+      alert("Has pasado demasiado tiempo inactivo, por favor recarga la página");
     }
   };
 
