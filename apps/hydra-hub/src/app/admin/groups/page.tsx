@@ -25,18 +25,18 @@ function Chips({ items }: { items: { id: string; name: string }[] }) {
   const MAX = 2;
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-1.5">
       {items.slice(0, MAX).map((i) => (
         <span
           key={i.id}
-          className="px-2 py-1 text-xs rounded-md bg-gray-100 text-gray-700 border"
+          className="badge bg-slate-100 text-slate-700 border border-slate-200"
         >
           {i.name}
         </span>
       ))}
 
       {items.length > MAX && (
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-slate-400">
           +{items.length - MAX}
         </span>
       )}
@@ -141,8 +141,8 @@ export default function PositionGroupsPage() {
       header: "Grupo",
       render: (g: PositionGroup) => (
         <div>
-          <p className="font-semibold text-gray-900">{g.name}</p>
-          <p className="text-xs text-gray-500">
+          <p className="font-semibold text-slate-900">{g.name}</p>
+          <p className="text-xs text-slate-500">
             {g.description || "Sin descripción"}
           </p>
         </div>
@@ -170,13 +170,9 @@ export default function PositionGroupsPage() {
       render: (g: PositionGroup) => (
         <button
           onClick={() => openGroup(g)}
-          className="group p-2 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-300 transition relative"
+          className="group p-2 rounded-lg border border-slate-200 hover:bg-blue-50 hover:border-blue-300 transition"
         >
-          <Layers className="w-4 h-4 text-gray-600 group-hover:text-indigo-600" />
-
-          <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-            Gestionar
-          </span>
+          <Layers className="w-4 h-4 text-slate-500 group-hover:text-blue-600" />
         </button>
       ),
     },
@@ -188,69 +184,61 @@ export default function PositionGroupsPage() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Grupos de Cargos
-        </h1>
-        <p className="text-sm text-gray-500">
-          Administra roles compartidos por cargos
-        </p>
-      </div>
-
-      {/* SEARCH + CREATE */}
-      <div className="flex gap-3">
-        <input
-          placeholder="Buscar grupo..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="section-title">Grupos de Cargos</h1>
+          <p className="section-subtitle">
+            Administra roles compartidos por cargos
+          </p>
+        </div>
 
         <button
           onClick={handleCreate}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition"
+          className="btn-primary flex items-center gap-2 self-start"
         >
           <Plus className="w-4 h-4" />
           Crear
         </button>
       </div>
 
-      {/* TABLE */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
+        <input
+          placeholder="Buscar grupo..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input-corporate"
+        />
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
         <DataTable data={filtered} columns={columns} loading={loading} />
       </div>
 
-      {/* MODAL */}
       {selectedGroup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* BACKDROP */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={closeModal}
           />
 
-          {/* CONTENT */}
-          <div className="relative z-10 w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 space-y-6">
+          <div className="relative z-10 w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
 
-            {/* HEADER */}
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold flex items-center gap-2">
-                <Shield className="w-5 h-5 text-indigo-600" />
+                <Shield className="w-5 h-5 text-blue-600" />
                 {selectedGroup.name}
               </h2>
 
               <button
                 onClick={closeModal}
-                className="p-2 rounded-lg hover:bg-gray-100"
+                className="p-2 rounded-lg hover:bg-slate-100"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
 
-            {/* ROLES */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              <h3 className="text-sm font-semibold text-slate-700 mb-2">
                 Roles
               </h3>
 
@@ -259,18 +247,18 @@ export default function PositionGroupsPage() {
                   <span
                     key={r.role.id}
                     onClick={() => removeRole(r.role.id)}
-                    className="cursor-pointer px-2 py-1 text-xs rounded bg-red-50 text-red-700 hover:bg-red-100 transition"
+                    className="cursor-pointer badge badge-danger"
                   >
-                    {r.role.name} ✕
+                    {r.role.name}
                   </span>
                 ))}
               </div>
 
               <select
                 onChange={(e) => addRole(e.target.value)}
-                className="mt-3 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="input-corporate mt-3"
               >
-                <option>Agregar rol</option>
+                <option value="">Agregar rol</option>
                 {allRoles.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name}
@@ -279,9 +267,8 @@ export default function PositionGroupsPage() {
               </select>
             </div>
 
-            {/* POSITIONS */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              <h3 className="text-sm font-semibold text-slate-700 mb-2">
                 Cargos
               </h3>
 
@@ -290,18 +277,18 @@ export default function PositionGroupsPage() {
                   <span
                     key={p.id}
                     onClick={() => removePosition(p.id)}
-                    className="cursor-pointer px-2 py-1 text-xs rounded bg-red-50 text-red-700 hover:bg-red-100 transition"
+                    className="cursor-pointer badge badge-danger"
                   >
-                    {p.name} ✕
+                    {p.name}
                   </span>
                 ))}
               </div>
 
               <select
                 onChange={(e) => addPosition(e.target.value)}
-                className="mt-3 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="input-corporate mt-3"
               >
-                <option>Agregar cargo</option>
+                <option value="">Agregar cargo</option>
                 {allPositions.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}

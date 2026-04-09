@@ -21,63 +21,58 @@ export function UserMenu() {
   return (
     <div className="relative">
       
-      {/* BOTÓN PERFIL */}
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-3 hover:bg-zinc-800 px-3 py-2 rounded-lg transition border border-transparent hover:border-zinc-700"
+        className="flex items-center gap-2.5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition"
       >
-        <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold text-white shadow-inner">
+        <div className="w-8 h-8 rounded-full bg-[#f59e0b] flex items-center justify-center text-sm font-bold text-black shadow-sm">
           {firstLetter}
         </div>
 
-        <div className="hidden md:block text-left">
-          <p className="text-xs font-medium text-zinc-100">{user.name}</p>
-          <p className="text-[10px] text-zinc-400">Usuario Activo</p>
+        <div className="hidden sm:block text-left">
+          <p className="text-xs font-medium text-white">{user.name}</p>
+          <p className="text-[10px] text-white/60">Usuario</p>
         </div>
 
         <ChevronDown
-          className={`w-4 h-4 text-zinc-500 transition-transform ${
+          className={`w-4 h-4 text-white/60 transition-transform ${
             open ? "rotate-180" : ""
           }`}
         />
       </button>
 
-      {/* DROPDOWN */}
       {open && (
         <>
-          {/* BACKDROP */}
           <div
             className="fixed inset-0 z-10"
             onClick={() => setOpen(false)}
           />
 
-          <div className="absolute right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl z-20 overflow-hidden animate-in fade-in zoom-in duration-150">
+          <div className="absolute right-0 mt-2 w-64 bg-[#1a1a1a] border border-[#333] rounded-xl shadow-xl z-20 overflow-hidden">
 
-            {/* INFO USUARIO */}
-            <div className="px-4 py-4 border-b border-zinc-800 bg-zinc-900/50">
+            <div className="px-4 py-4 border-b border-[#333] bg-[#222]">
               <p className="text-sm font-semibold text-white truncate">
                 {user.name}
               </p>
 
               <p
-                className="text-xs text-zinc-400 truncate mt-0.5"
+                className="text-xs text-white/60 truncate mt-0.5"
                 title={user.email}
               >
                 {user.email}
               </p>
             </div>
 
-            {/* ADMIN SECTION */}
             {isAdmin && (
-              <div className="p-1 border-b border-zinc-800">
+              <div className="p-1.5 border-b border-[#333]">
 
-                <p className="px-3 py-1 text-[10px] uppercase text-zinc-500">
+                <p className="px-2 py-1 text-[10px] uppercase text-white/40 font-medium">
                   Administración
                 </p>
 
                 <button
                   onClick={() => router.push("/admin/users")}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
+                  className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-white/80 hover:bg-white/10 rounded-lg"
                 >
                   <User className="w-4 h-4" />
                   Usuarios
@@ -85,7 +80,7 @@ export function UserMenu() {
 
                 <button
                   onClick={() => router.push("/admin/positions")}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
+                  className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-white/80 hover:bg-white/10 rounded-lg"
                 >
                   <Briefcase className="w-4 h-4" />
                   Cargos
@@ -93,7 +88,7 @@ export function UserMenu() {
 
                 <button
                   onClick={() => router.push("/admin/groups")}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
+                  className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-white/80 hover:bg-white/10 rounded-lg"
                 >
                   <Users className="w-4 h-4" />
                   Grupos
@@ -101,7 +96,7 @@ export function UserMenu() {
 
                 <button
                   onClick={() => router.push("/admin/roles")}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
+                  className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-white/80 hover:bg-white/10 rounded-lg"
                 >
                   <Shield className="w-4 h-4" />
                   Roles
@@ -109,7 +104,7 @@ export function UserMenu() {
 
                 <button
                   onClick={() => router.push("/admin/platforms")}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded-md"
+                  className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-white/80 hover:bg-white/10 rounded-lg"
                 >
                   <LayoutGrid className="w-4 h-4" />
                   Plataformas
@@ -118,11 +113,10 @@ export function UserMenu() {
               </div>
             )}
 
-            {/* LOGOUT */}
-            <div className="p-1">
+            <div className="p-1.5">
               <button
                 onClick={logout}
-                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
+                className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Cerrar Sesión

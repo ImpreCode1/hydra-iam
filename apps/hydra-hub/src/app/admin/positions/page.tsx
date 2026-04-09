@@ -57,10 +57,10 @@ export default function PositionsPage() {
         header: "Cargo",
         render: (position: Position) => (
           <div className="flex flex-col">
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-slate-900">
               {position.name}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-slate-500">
               {position.description || "Sin descripción"}
             </span>
           </div>
@@ -70,23 +70,13 @@ export default function PositionsPage() {
         header: "Acciones",
         render: (position: Position) => (
           <div className="flex items-center gap-2">
-            
-            {/* GESTIONAR ROLES */}
             <button
               onClick={() => setSelectedPositionId(position.id)}
-              className="group p-2 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 transition"
+              className="group p-2 rounded-lg border border-slate-200 hover:bg-blue-50 hover:border-blue-200 transition"
               title="Gestionar roles del cargo"
             >
-              <Shield className="w-4 h-4 text-gray-600 group-hover:text-indigo-600" />
+              <Shield className="w-4 h-4 text-slate-500 group-hover:text-blue-600" />
             </button>
-
-            {/* FUTURO: puedes agregar editar aquí */}
-            {/* 
-            <button className="group p-2 rounded-lg border hover:bg-gray-50">
-              <Users className="w-4 h-4" />
-            </button> 
-            */}
-
           </div>
         ),
       },
@@ -96,18 +86,14 @@ export default function PositionsPage() {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Gestión de Cargos
-        </h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="section-title">Gestión de Cargos</h1>
+        <p className="section-subtitle">
           Administra los cargos organizacionales y sus roles asociados
         </p>
       </div>
 
-      {/* TABLE */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
         <DataTable
           data={positions}
           columns={columns}
@@ -116,18 +102,17 @@ export default function PositionsPage() {
         />
       </div>
 
-      {/* ROLES PANEL */}
       {selectedPositionId && (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Users className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-600" />
               Roles del cargo
             </h2>
 
             <button
               onClick={() => setSelectedPositionId(null)}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="btn-ghost text-sm"
             >
               Cerrar
             </button>

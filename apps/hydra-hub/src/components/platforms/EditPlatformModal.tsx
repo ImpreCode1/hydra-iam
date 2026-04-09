@@ -56,53 +56,51 @@ export function EditPlatformModal({ platform, onClose, onUpdated }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Editar Plataforma</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      
+      <div className="relative bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+        <h2 className="text-lg font-semibold text-slate-900 mb-5">Editar Plataforma</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nombre */}
           <div>
-            <label className="text-sm text-gray-600">Nombre</label>
+            <label className="text-sm font-medium text-slate-600 mb-1.5 block">Nombre</label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="w-full mt-1 px-3 py-2 border rounded-md text-sm"
+              className="input-corporate"
               required
             />
           </div>
 
-          {/* Código */}
           <div>
-            <label className="text-sm text-gray-600">Código</label>
+            <label className="text-sm font-medium text-slate-600 mb-1.5 block">Código</label>
             <input
               name="code"
               value={form.code}
               onChange={handleChange}
-              className="w-full mt-1 px-3 py-2 border rounded-md text-sm"
+              className="input-corporate uppercase"
               required
             />
           </div>
 
-          {/* URL */}
           <div>
-            <label className="text-sm text-gray-600">URL</label>
+            <label className="text-sm font-medium text-slate-600 mb-1.5 block">URL</label>
             <input
               name="url"
               value={form.url}
               onChange={handleChange}
-              className="w-full mt-1 px-3 py-2 border rounded-md text-sm"
+              className="input-corporate"
               required
             />
           </div>
 
-          {/* Acciones */}
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-2 text-sm border rounded-md"
+              className="btn-secondary text-sm"
             >
               Cancelar
             </button>
@@ -110,7 +108,7 @@ export function EditPlatformModal({ platform, onClose, onUpdated }: Props) {
             <button
               type="submit"
               disabled={loading}
-              className="px-3 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="btn-primary text-sm"
             >
               {loading ? "Guardando..." : "Guardar"}
             </button>

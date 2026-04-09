@@ -4,41 +4,33 @@ import { NotificationsDropdown } from "@/components/hub/NotificationsDropdown"
 
 export function HubLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen bg-slate-50">
 
-      <header className="bg-zinc-900 text-white border-b border-zinc-800">
+      <header className="bg-[#1a1a1a] border-b border-[#2a2a2a] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
 
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
+              <img
+                src="/impresistem_logo.png"
+                alt="Logo empresa"
+                className="h-9 w-auto object-contain"
+              />
+              <h1 className="text-base font-semibold text-white hidden sm:block border-l border-white/30 pl-3">
+                Sistema de Gestión de Accesos
+              </h1>
+            </Link>
 
-          {/* LOGO + NOMBRE */}
-          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition">
-
-            <img
-              src="/impresistem_logo.png"
-              alt="Logo empresa"
-              className="h-10 max-w-45 w-full object-contain object-left"
-            />
-
-            <h1 className="text-lg font-semibold border-l border-zinc-700 pl-3">
-              Sistema de Gestión de Accesos
-            </h1>
-
-          </Link>
-
-          {/* ACCIONES */}
-          <div className="flex items-center gap-4">
-
-            <NotificationsDropdown />
-
-            <UserMenu />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <NotificationsDropdown />
+              <UserMenu />
+            </div>
 
           </div>
-
         </div>
-
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {children}
       </main>
 

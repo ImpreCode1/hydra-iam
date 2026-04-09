@@ -77,13 +77,13 @@ export function PositionRoleAccess({ positionId, allRoles }: PositionRoleAccessP
   };
 
   if (loading) {
-    return <p className="text-gray-500 animate-pulse">Cargando roles...</p>;
+    return <p className="text-slate-500 text-sm animate-pulse">Cargando roles...</p>;
   }
 
   return (
-    <div className="bg-gray-50 p-6 rounded-2xl shadow-lg">
-      <h3 className="font-bold text-xl mb-6 text-gray-800">Roles del cargo</h3>
-      <div className="grid gap-4 md:grid-cols-2">
+    <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
+      <h3 className="font-semibold text-slate-800 mb-4">Roles del cargo</h3>
+      <div className="grid gap-3 sm:grid-cols-2">
         {allRoles.map(role => {
           const isChecked = checkedMap[role.id] || false;
           const isProcessing = processingMap[role.id] || false;
@@ -91,21 +91,21 @@ export function PositionRoleAccess({ positionId, allRoles }: PositionRoleAccessP
           return (
             <div
               key={role.id}
-              className={`flex items-center justify-between p-4 bg-white rounded-xl shadow-sm transition transform hover:scale-[1.01] hover:shadow-md ${
-                isProcessing ? "opacity-60" : "opacity-100"
+              className={`flex items-center justify-between p-3.5 bg-white rounded-lg border border-slate-200 transition ${
+                isProcessing ? "opacity-60" : ""
               }`}
             >
-              <span className="font-medium text-gray-700">{role.name}</span>
+              <span className="font-medium text-slate-800 text-sm">{role.name}</span>
               <button
                 onClick={() => toggle(role.id)}
                 disabled={isProcessing}
-                className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  isChecked ? "bg-blue-600 border-blue-600" : "bg-white border-gray-300"
+                className={`relative flex items-center justify-center w-8 h-8 rounded-lg border-2 shrink-0 ${
+                  isChecked ? "bg-[var(--primary)] border-[var(--primary)]" : "bg-white border-slate-300"
                 } focus:outline-none transition`}
               >
                 {isProcessing ? (
                   <svg
-                    className="animate-spin h-5 w-5 text-gray-500"
+                    className="animate-spin h-4 w-4 text-slate-400"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -126,7 +126,7 @@ export function PositionRoleAccess({ positionId, allRoles }: PositionRoleAccessP
                   </svg>
                 ) : (
                   <svg
-                    className={`w-5 h-5 text-white transition-transform ${isChecked ? "scale-100" : "scale-0"}`}
+                    className={`w-4 h-4 text-white transition-transform ${isChecked ? "scale-100" : "scale-0"}`}
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={3}

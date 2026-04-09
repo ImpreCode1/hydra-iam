@@ -92,7 +92,7 @@ export function RolePlatformAccess({ roleId }: RolePlatformAccessProps) {
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <span className="text-gray-500 text-lg animate-pulse">
+        <span className="text-slate-500 text-sm animate-pulse">
           Cargando accesos...
         </span>
       </div>
@@ -100,10 +100,10 @@ export function RolePlatformAccess({ roleId }: RolePlatformAccessProps) {
   }
 
   return (
-    <div className="bg-gray-50 p-6 rounded-2xl shadow-lg">
-      <h3 className="font-bold text-xl mb-6 text-gray-800">Acceso a plataformas</h3>
+    <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
+      <h3 className="font-semibold text-slate-800 mb-4">Acceso a plataformas</h3>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {platforms.map((platform) => {
           const isChecked = checkedMap[platform.id] || false;
           const isProcessing = processingMap[platform.id] || false;
@@ -111,29 +111,27 @@ export function RolePlatformAccess({ roleId }: RolePlatformAccessProps) {
           return (
             <div
               key={platform.id}
-              className={`flex items-center justify-between p-4 bg-white rounded-xl shadow-sm transition transform hover:scale-[1.01] hover:shadow-md ${
-                isProcessing ? "opacity-60" : "opacity-100"
+              className={`flex items-center justify-between p-3.5 bg-white rounded-lg border border-slate-200 transition ${
+                isProcessing ? "opacity-60" : ""
               }`}
             >
-              <div className="flex items-center space-x-3">
-                <div className="flex flex-col">
-                  <span className="font-medium text-gray-700">{platform.name}</span>
-                  <span className="text-sm text-gray-400">{platform.url}</span>
-                </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-medium text-slate-800 text-sm">{platform.name}</span>
+                <span className="text-xs text-slate-400 truncate">{platform.url}</span>
               </div>
 
               <button
                 onClick={() => toggle(platform.id)}
                 disabled={isProcessing}
-                className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                className={`relative flex items-center justify-center w-8 h-8 rounded-lg border-2 shrink-0 ml-2 ${
                   isChecked
-                    ? "bg-blue-600 border-blue-600"
-                    : "bg-white border-gray-300"
+                    ? "bg-[var(--primary)] border-[var(--primary)]"
+                    : "bg-white border-slate-300"
                 } focus:outline-none transition`}
               >
                 {isProcessing ? (
                   <svg
-                    className="animate-spin h-5 w-5 text-gray-500"
+                    className="animate-spin h-4 w-4 text-slate-400"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -154,7 +152,7 @@ export function RolePlatformAccess({ roleId }: RolePlatformAccessProps) {
                   </svg>
                 ) : (
                   <svg
-                    className={`w-5 h-5 text-white transition-transform ${
+                    className={`w-4 h-4 text-white transition-transform ${
                       isChecked ? "scale-100" : "scale-0"
                     }`}
                     fill="none"

@@ -17,7 +17,11 @@ type Platform = {
   isActive: boolean;
 };
 
-export function PlatformList() {
+interface PlatformListProps {
+  refreshKey?: number;
+}
+
+export function PlatformList({ refreshKey }: PlatformListProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -40,7 +44,7 @@ export function PlatformList() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [refreshKey]);
 
   // 🔥 ELIMINAR
   async function handleDelete(id: string) {
@@ -92,23 +96,23 @@ export function PlatformList() {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mt-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 mt-6">
+      <h2 className="text-lg font-semibold text-slate-800 mb-4">
         Plataformas
       </h2>
 
       {loading ? (
-        <p className="text-sm text-gray-500">Cargando plataformas...</p>
+        <p className="text-sm text-slate-500">Cargando plataformas...</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 border-b">
-                <th className="py-2">Logo</th>
-                <th>Nombre</th>
-                <th>Código</th>
-                <th>Estado</th>
-                <th className="text-right">Acciones</th>
+              <tr className="text-left text-slate-500 border-b border-slate-200">
+                <th className="pb-3 font-medium">Logo</th>
+                <th className="pb-3 font-medium">Nombre</th>
+                <th className="pb-3 font-medium">Código</th>
+                <th className="pb-3 font-medium">Estado</th>
+                <th className="pb-3 font-medium text-right">Acciones</th>
               </tr>
             </thead>
 
@@ -116,85 +120,76 @@ export function PlatformList() {
               {platforms.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b hover:bg-gray-50 transition"
+                  className="border-b border-slate-100 hover:bg-slate-50/70 transition-colors"
                 >
-                  {/* Logo */}
-                  <td className="py-2">
+                  <td className="py-3">
                     {p.logoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={p.logoUrl}
-                        className="w-12 h-12 object-contain"
+                        className="w-10 h-10 object-contain rounded-lg border"
                         alt={p.name}
                       />
                     ) : (
-                      <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-400">
+                      <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-xs text-slate-400">
                         N/A
                       </div>
                     )}
                   </td>
 
-                  {/* Nombre */}
-                  <td className="font-medium text-gray-800">
+                  <td className="font-medium text-slate-800 py-3">
                     {p.name}
                   </td>
 
-                  {/* Código */}
-                  <td className="text-gray-600">{p.code}</td>
+                  <td className="text-slate-600 py-3 font-mono text-xs">{p.code}</td>
 
-                  {/* Estado */}
-                  <td>
+                  <td className="py-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        p.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-200 text-gray-600"
+                      className={`badge ${
+                        p.isActive ? "badge-success" : "bg-slate-100 text-slate-500 border-slate-200"
                       }`}
                     >
                       {p.isActive ? "Activo" : "Inactivo"}
                     </span>
                   </td>
 
-                  {/* Acciones */}
-                  <td className="text-right space-x-2">
-                    {/* Toggle */}
-                    <button
-                      disabled={actionLoading === p.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleStatus(p);
-                      }}
-                      className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      {actionLoading === p.id
-                        ? "..."
-                        : p.isActive
-                          ? "Desactivar"
-                          : "Activar"}
-                    </button>
+                  <td className="py-3 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        disabled={actionLoading === p.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleStatus(p);
+                        }}
+                        className="btn-ghost text-xs px-2.5 py-1.5"
+                      >
+                        {actionLoading === p.id
+                          ? "..."
+                          : p.isActive
+                            ? "Desactivar"
+                            : "Activar"}
+                      </button>
 
-                    {/* Editar */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedPlatform(p);
-                      }}
-                      className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100"
-                    >
-                      Editar
-                    </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedPlatform(p);
+                        }}
+                        className="btn-ghost text-xs px-2.5 py-1.5"
+                      >
+                        Editar
+                      </button>
 
-                    {/* Eliminar */}
-                    <button
-                      disabled={actionLoading === p.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(p.id);
-                      }}
-                      className="text-xs px-2 py-1 rounded-md border text-red-600 hover:bg-red-50 disabled:opacity-50"
-                    >
-                      {actionLoading === p.id ? "..." : "Eliminar"}
-                    </button>
+                      <button
+                        disabled={actionLoading === p.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(p.id);
+                        }}
+                        className="btn-ghost text-xs px-2.5 py-1.5 text-red-600 hover:bg-red-50"
+                      >
+                        {actionLoading === p.id ? "..." : "Eliminar"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -202,14 +197,13 @@ export function PlatformList() {
           </table>
 
           {platforms.length === 0 && (
-            <p className="text-sm text-gray-500 mt-4">
+            <p className="text-sm text-slate-500 mt-4">
               No hay plataformas registradas
             </p>
           )}
         </div>
       )}
 
-      {/* 🔥 MODAL */}
       {selectedPlatform && (
         <EditPlatformModal
           platform={selectedPlatform}

@@ -69,62 +69,58 @@ export function PlatformForm({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-5">
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+      <h2 className="text-lg font-semibold text-slate-800 mb-5">
         Crear Plataforma
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Nombre */}
-        <div>
-          <label className="text-sm text-gray-600">Nombre</label>
-          <input
-            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium text-slate-600 mb-1.5 block">Nombre</label>
+            <input
+              className="input-corporate"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-600 mb-1.5 block">Código</label>
+            <input
+              className="input-corporate uppercase"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              required
+            />
+          </div>
         </div>
 
-        {/* Código */}
         <div>
-          <label className="text-sm text-gray-600">Código</label>
+          <label className="text-sm font-medium text-slate-600 mb-1.5 block">URL</label>
           <input
-            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            required
-          />
-        </div>
-
-        {/* URL */}
-        <div>
-          <label className="text-sm text-gray-600">URL</label>
-          <input
-            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input-corporate"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             required
           />
         </div>
 
-        {/* Descripción */}
         <div>
-          <label className="text-sm text-gray-600">Descripción</label>
+          <label className="text-sm font-medium text-slate-600 mb-1.5 block">Descripción</label>
           <textarea
-            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input-corporate min-h-[80px] resize-y"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
-        {/* Upload mejorado */}
         <div>
-          <label className="block text-sm text-gray-600 mb-2">Logo</label>
+          <label className="text-sm font-medium text-slate-600 mb-2 block">Logo</label>
 
           <div className="flex items-center gap-4">
-            {/* Botón bonito */}
-            <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 transition px-4 py-2 rounded-lg text-sm font-medium border border-gray-300">
+            <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 transition px-4 py-2.5 rounded-lg text-sm font-medium border border-slate-300">
               Seleccionar imagen
               <input
                 type="file"
@@ -134,32 +130,28 @@ export function PlatformForm({ onCreated }: { onCreated: () => void }) {
               />
             </label>
 
-            {/* Nombre del archivo */}
             {file && (
-              <span className="text-sm text-gray-500 truncate max-w-37.5">
+              <span className="text-sm text-slate-500 truncate max-w-[200px]">
                 {file.name}
               </span>
             )}
           </div>
 
-          {/* Preview */}
           {preview && (
             <div className="mt-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={preview}
                 alt="preview"
-                className="w-24 h-24 object-cover rounded-xl border shadow-sm"
+                className="w-20 h-20 object-cover rounded-xl border shadow-sm"
               />
             </div>
           )}
         </div>
 
-        {/* Botón */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-gray-900 hover:bg-black transition text-white py-2 rounded-lg font-medium disabled:opacity-50"
+          className="btn-primary w-full"
         >
           {loading ? "Creando..." : "Crear Plataforma"}
         </button>

@@ -6,13 +6,11 @@ export default function LoginCard() {
     <div className="login-card">
 
       <div className="login-brand">
-
         <img
           src="/impresistem_logo.png"
           alt="Impresistem"
           className="company-logo"
         />
-
       </div>
 
       <h1 className="login-title">

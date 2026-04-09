@@ -12,12 +12,18 @@ export default function PlatformsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Gestión de Plataformas</h1>
+    <div className="space-y-6">
+      <div className="space-y-1">
+        <h1 className="section-title">Gestión de Plataformas</h1>
+        <p className="section-subtitle">
+          Administra las plataformas disponibles en el sistema
+        </p>
+      </div>
 
-      <PlatformForm onCreated={handleCreated} />
-
-      <PlatformList refreshKey={refreshKey} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PlatformForm onCreated={handleCreated} />
+        <PlatformList refreshKey={refreshKey} />
+      </div>
     </div>
   )
 }

@@ -42,24 +42,28 @@ export function PlatformGrid() {
 
   return (
 
-    <div className="text-center">
+    <div className="text-center space-y-8">
 
-      <h2 className="text-3xl font-semibold mb-2">
-        Bienvenido(a), {firstName}
-      </h2>
+      <div className="space-y-2">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+          Bienvenido(a), {firstName}
+        </h2>
 
-      <p className="text-gray-600 mb-10">
-        Estas son las plataformas a las que tienes acceso.
-      </p>
+        <p className="text-slate-600 max-w-md mx-auto">
+          Estas son las plataformas a las que tienes acceso.
+        </p>
+      </div>
 
       {loading && (
-        <p className="text-gray-500">Cargando plataformas...</p>
+        <p className="text-slate-500">Cargando plataformas...</p>
       )}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 justify-items-center max-w-5xl mx-auto">
 
         {platforms.map((platform) => (
-          <PlatformCard key={platform.id} platform={platform} />
+          <div className="w-full max-w-sm" key={platform.id}>
+            <PlatformCard platform={platform} />
+          </div>
         ))}
 
       </div>
