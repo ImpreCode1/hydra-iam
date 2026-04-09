@@ -4,6 +4,7 @@ import { PlatformsService } from './platforms.service';
 import { PlatformsController } from './platforms.controller';
 import { PlatformsAccessController } from './plattforms-access.controller';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
       secret: process.env.JWT_SECRET,
       signOptions: { issuer: 'hydra-iam' },
     }),
+    NotificationsModule,
   ],
   providers: [PlatformsService, PrismaService],
   controllers: [PlatformsController, PlatformsAccessController],

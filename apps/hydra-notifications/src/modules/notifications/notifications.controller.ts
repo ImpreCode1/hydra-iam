@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { ServiceJwtGuard } from '../auth/guards/service-jwt.guard';
 import { SendNotificationDto } from './dto/send-notification.dto';
@@ -17,5 +17,45 @@ export class NotificationsController {
   @UseGuards(ServiceJwtGuard)
   async getById(@Param('id') id: string) {
     return this.notificationsService.findById(id);
+  }
+
+  @Get('user/:userId')
+  @UseGuards(ServiceJwtGuard)
+  async getUserNotifications(
+    @Param('userId') userId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    return this.notificationsService.getUserNotifications(
+      userId,
+      limit ? parseInt(limit) : 20,
+      offset ? parseInt(offset) : 0,
+    );
+  }
+
+  @Get('user/:userId/unread-count')
+  @UseGuards(ServiceJwtGuard)
+  async getUnreadCount(@Param('userId') userId: string) {
+    return this.notificationsService.getUnreadCount(userId);
+  }
+
+  @Put(':id/read')
+  @UseGuards(ServiceJwtGuard)
+  async markAsRead(@Param('id') id: string) {
+    return this.notificationsService.markAsRead(id);
+  }
+
+  @Put('user/:userId/read-all')
+  @UseGuards(ServiceJwtGuard)
+  async markAllAsRead(@Param('userId') userId: string) {
+    return this.notificationsService.markAllAsRead(userId);
+  }
+
+  @Post('user-notification')
+  @UseGuards(ServiceJwtGuard)
+  async createUserNotification(
+    @Body() dto: { userId: string; type: string; title: string; message: string },
+  ) {
+    return this.notificationsService.createUserNotification(dto);
   }
 }

@@ -30,6 +30,22 @@ model Notification {
   @@map("notifications")
 }
 
+model UserNotification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@map("user_notifications")
+}
+
 enum NotificationStatus {
   PENDING
   SENT

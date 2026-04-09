@@ -15,7 +15,7 @@ import { getRoles, type Role } from "@/modules/roles/api";
 import { getPositions, type Position } from "@/modules/positions/api";
 
 import { DataTable } from "@/components/ui/DataTable";
-import { Shield, Layers, X, Plus } from "lucide-react";
+import { Shield, Layers, X, Plus, Users } from "lucide-react";
 
 /* =========================
    HELPERS
@@ -217,84 +217,118 @@ export default function PositionGroupsPage() {
       {selectedGroup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={closeModal}
           />
 
-          <div className="relative z-10 w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+          <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
 
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-600" />
-                {selectedGroup.name}
-              </h2>
+            <div className="bg-[#1a1a1a] px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#f59e0b]/20 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-[#f59e0b]" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-white">
+                      {selectedGroup.name}
+                    </h2>
+                    <p className="text-xs text-white/60">
+                      Configurar grupo
+                    </p>
+                  </div>
+                </div>
 
+                <button
+                  onClick={closeModal}
+                  className="p-2 rounded-lg hover:bg-white/10 transition"
+                >
+                  <X className="w-5 h-5 text-white/60" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-slate-400" />
+                  Roles asignados
+                </h3>
+
+                <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  {selectedGroup.roles.length === 0 ? (
+                    <span className="text-xs text-slate-400">Sin roles asignados</span>
+                  ) : (
+                    selectedGroup.roles.map((r) => (
+                      <span
+                        key={r.role.id}
+                        onClick={() => removeRole(r.role.id)}
+                        className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition"
+                      >
+                        {r.role.name}
+                        <X className="w-3 h-3" />
+                      </span>
+                    ))
+                  )}
+                </div>
+
+                <select
+                  onChange={(e) => addRole(e.target.value)}
+                  className="input-corporate mt-3"
+                >
+                  <option value="">Seleccionar rol...</option>
+                  {allRoles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-slate-400" />
+                  Cargos asignados
+                </h3>
+
+                <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  {selectedGroup.positions.length === 0 ? (
+                    <span className="text-xs text-slate-400">Sin cargos asignados</span>
+                  ) : (
+                    selectedGroup.positions.map((p) => (
+                      <span
+                        key={p.id}
+                        onClick={() => removePosition(p.id)}
+                        className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition"
+                      >
+                        {p.name}
+                        <X className="w-3 h-3" />
+                      </span>
+                    ))
+                  )}
+                </div>
+
+                <select
+                  onChange={(e) => addPosition(e.target.value)}
+                  className="input-corporate mt-3"
+                >
+                  <option value="">Seleccionar cargo...</option>
+                  {allPositions.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end">
               <button
                 onClick={closeModal}
-                className="p-2 rounded-lg hover:bg-slate-100"
+                className="btn-primary"
               >
-                <X className="w-5 h-5 text-slate-400" />
+                Cerrar
               </button>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-2">
-                Roles
-              </h3>
-
-              <div className="flex flex-wrap gap-2">
-                {selectedGroup.roles.map((r) => (
-                  <span
-                    key={r.role.id}
-                    onClick={() => removeRole(r.role.id)}
-                    className="cursor-pointer badge badge-danger"
-                  >
-                    {r.role.name}
-                  </span>
-                ))}
-              </div>
-
-              <select
-                onChange={(e) => addRole(e.target.value)}
-                className="input-corporate mt-3"
-              >
-                <option value="">Agregar rol</option>
-                {allRoles.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-2">
-                Cargos
-              </h3>
-
-              <div className="flex flex-wrap gap-2">
-                {selectedGroup.positions.map((p) => (
-                  <span
-                    key={p.id}
-                    onClick={() => removePosition(p.id)}
-                    className="cursor-pointer badge badge-danger"
-                  >
-                    {p.name}
-                  </span>
-                ))}
-              </div>
-
-              <select
-                onChange={(e) => addPosition(e.target.value)}
-                className="input-corporate mt-3"
-              >
-                <option value="">Agregar cargo</option>
-                {allPositions.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         </div>

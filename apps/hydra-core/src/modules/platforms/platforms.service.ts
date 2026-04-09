@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 type RoleEntity = {
   id: string;
@@ -34,6 +35,7 @@ export class PlatformsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(data: {
@@ -241,7 +243,7 @@ export class PlatformsService {
 
     const platformData = await this.prisma.platform.findUnique({
       where: { code: platformCode },
-      select: { id: true, url: true, isActive: true, deletedAt: true },
+      select: { id: true, name: true, url: true, isActive: true, deletedAt: true },
     });
 
     if (!platformData || !platformData.isActive || platformData.deletedAt) {
@@ -297,6 +299,12 @@ export class PlatformsService {
       audience: 'internal-platforms',
       expiresIn: '15m',
     });
+
+    try {
+      await this.notificationsService.notifyPlatformAccess(userId, platformData.name);
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
 
     return {
       redirectUrl: `${platformData.url}?token=${token}`,

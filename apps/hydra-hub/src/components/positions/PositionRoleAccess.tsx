@@ -27,26 +27,34 @@ export function PositionRoleAccess({ positionId, allRoles }: PositionRoleAccessP
   const [processingMap, setProcessingMap] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
+    if (!allRoles || allRoles.length === 0) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
+      console.log("Cargando roles para position:", positionId);
       const assignedRoles: RoleApiResponse[] = await getPositionRoles(positionId);
+      console.log("Roles asignados:", assignedRoles);
       const assignedIds = assignedRoles.map(r => "role" in r ? r.role.id : r.id);
+      console.log("IDs asignados:", assignedIds);
 
       const map: Record<string, boolean> = {};
       allRoles.forEach(role => {
         map[role.id] = assignedIds.includes(role.id);
       });
+      console.log("Mapa de checked:", map);
       setCheckedMap(map);
     } catch (error) {
       console.error("Error cargando roles de cargo:", error);
     } finally {
       setLoading(false);
     }
-  }, [positionId, allRoles]);
+  }, [positionId]);
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [positionId]);
 
   const toggle = async (roleId: string) => {
     if (processingMap[roleId]) return;
@@ -78,6 +86,10 @@ export function PositionRoleAccess({ positionId, allRoles }: PositionRoleAccessP
 
   if (loading) {
     return <p className="text-slate-500 text-sm animate-pulse">Cargando roles...</p>;
+  }
+
+  if (!allRoles || allRoles.length === 0) {
+    return <p className="text-slate-500 text-sm">No hay roles disponibles</p>;
   }
 
   return (

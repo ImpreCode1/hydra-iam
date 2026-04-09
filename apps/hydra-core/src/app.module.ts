@@ -18,6 +18,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { PlatformsModule } from './modules/platforms/platforms.module';
 import { MediaModule } from './modules/media/media.module';
 import { PositionGroupsModule } from './modules/position-groups/position-groups.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -33,8 +34,9 @@ import { join } from 'path';
     PlatformsModule,
     MediaModule,
     PositionGroupsModule,
+    NotificationsModule,
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'uploads'), // siempre apunta a la raíz del proyecto
+      rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
   ],

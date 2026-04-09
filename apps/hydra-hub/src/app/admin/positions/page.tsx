@@ -45,6 +45,7 @@ export default function PositionsPage() {
   async function loadRoles() {
     try {
       const data = await getRoles();
+      console.log("Roles cargados:", data);
       setRoles(data);
     } catch (err) {
       console.error(err);
