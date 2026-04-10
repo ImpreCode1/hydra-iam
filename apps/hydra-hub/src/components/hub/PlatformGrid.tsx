@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { PlatformCard } from "./PlatformCard"
+import { FormsSection } from "./FormsSection"
 import { useAuth } from "@/hooks/useAuth"
 import { getMyPlatforms } from "@/modules/platforms/api"
 
@@ -67,6 +68,8 @@ export function PlatformGrid() {
         ))}
 
       </div>
+
+      <FormsSection />
 
     </div>
   )
