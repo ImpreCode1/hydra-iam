@@ -20,9 +20,13 @@ export default function PlatformsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PlatformForm onCreated={handleCreated} />
-        <PlatformList refreshKey={refreshKey} />
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+        <div className="xl:col-span-2">
+          <PlatformForm onCreated={handleCreated} />
+        </div>
+        <div className="xl:col-span-3">
+          <PlatformList refreshKey={refreshKey} />
+        </div>
       </div>
     </div>
   )
