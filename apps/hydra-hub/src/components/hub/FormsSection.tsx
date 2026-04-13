@@ -38,49 +38,48 @@ const forms: Form[] = [
 
 export function FormsSection() {
   return (
-    <div className="mt-16 pt-12 border-t border-slate-200">
-      <div className="text-center mb-8">
-        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900">
+    <div className="mt-8 pt-8 border-t border-slate-200">
+      <div className="text-center mb-4">
+        <h2 className="text-xl font-semibold text-slate-900">
           Formularios
         </h2>
-        <p className="text-slate-600 mt-1">
+        <p className="text-slate-600 mt-1 text-sm">
           Accede rápidamente a los formularios de la empresa
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {forms.map((form) => (
           <a
             key={form.id}
             href={form.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative flex flex-col p-5 rounded-xl border border-slate-200 bg-white 
+            className="group relative flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl border border-slate-200 bg-white 
               shadow-sm transition-all duration-300 
               hover:shadow-lg hover:-translate-y-1 hover:border-blue-400/40"
           >
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 mb-4 
-              group-hover:bg-blue-100 transition-colors">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 shrink-0
+              group-hover:bg-blue-100 transition-colors self-center sm:self-start">
               <img
                 src="/logo_formularios.png"
                 alt="Forms"
-                className="w-8 h-8 object-contain"
+                className="w-5 h-5 object-contain"
               />
             </div>
 
-            <h3 className="text-sm font-semibold text-slate-800 mb-1">
-              {form.title}
-            </h3>
+            <div className="min-w-0 flex-1 text-center sm:text-left">
+              <h3 className="text-sm font-semibold text-slate-800">
+                {form.title}
+              </h3>
 
-            <p className="text-xs text-slate-500">
-              {form.description}
-            </p>
-
-            <div className="mt-auto pt-4 flex items-center gap-1 text-xs font-medium text-blue-600 
-              group-hover:text-blue-700 transition-colors">
-              <span>Acceder</span>
-              <ArrowUpRight className="w-3 h-3" />
+              <p className="text-xs text-slate-500">
+                {form.description}
+              </p>
             </div>
+
+            <ArrowUpRight className="w-4 h-4 text-blue-600 shrink-0 self-center 
+              group-hover:text-blue-700 transition-colors" />
           </a>
         ))}
       </div>
