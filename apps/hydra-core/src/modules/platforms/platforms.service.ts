@@ -1,4 +1,5 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -36,6 +37,7 @@ export class PlatformsService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
+    private readonly config: ConfigService,
   ) {}
 
   async create(data: {
@@ -48,19 +50,17 @@ export class PlatformsService {
     const clientSecretPlain = this.generateRandomSecret();
     const hashedSecret = await bcrypt.hash(clientSecretPlain, 10);
 
-    return this.prisma.$transaction(async (tx) => {
-      // 1️⃣ Crear plataforma
+    const result = await this.prisma.$transaction(async (tx) => {
       const platform = await tx.platform.create({
         data,
       });
 
-      // 2️⃣ Crear ServiceClient asociado
       const serviceClient = await tx.serviceClient.create({
         data: {
           name: `${platform.name} Service`,
           clientId: `${platform.code}-service`,
           clientSecret: hashedSecret,
-          platformId: platform.id, // requiere relación en schema
+          platformId: platform.id,
         },
       });
 
@@ -68,10 +68,21 @@ export class PlatformsService {
         platform,
         serviceCredentials: {
           clientId: serviceClient.clientId,
-          clientSecret: clientSecretPlain, // SOLO se muestra una vez
+          clientSecret: clientSecretPlain,
         },
       };
     });
+
+    const adminId = this.config.get<string>('SEED_ADMIN_ID');
+    if (adminId) {
+      this.notificationsService.notifyNewPlatformCreated(
+        adminId,
+        result.platform.name,
+        result.serviceCredentials.clientId,
+      ).catch((err) => console.error('Error sending notification:', err));
+    }
+
+    return result;
   }
 
   async findAll() {

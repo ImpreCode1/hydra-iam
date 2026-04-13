@@ -72,6 +72,19 @@ export class NotificationsService {
     });
   }
 
+  async notifyNewPlatformCreated(
+    userId: string,
+    platformName: string,
+    clientId: string,
+  ) {
+    return this.createNotification({
+      userId,
+      type: 'NEW_PLATFORM_CREATED',
+      title: 'Nueva plataforma creada',
+      message: `Se ha creado la plataforma "${platformName}". Client ID: ${clientId}`,
+    });
+  }
+
   async getUserNotifications(userId: string, limit: number, offset: number) {
     try {
       const response = await axios.get(
