@@ -10,7 +10,7 @@
 
   gap: 14px;
 
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 
 /* ===== LOGO ===== */
@@ -19,7 +19,7 @@
 
 .company-logo {
 
-  width: 220px;
+  width: 260px;
 
   height: auto;
 
@@ -27,7 +27,7 @@
 
   display: block;
 
-  margin: 0 auto 25px auto;
+  margin: 0 auto 10px auto;
 }
 
 /* ===== LOGIN CONTAINER ===== */
@@ -82,9 +82,15 @@
 
 .login-card {
 
-  width: 440px;
+  width: 520px;
 
-  padding: 55px 45px;
+  max-width: 95vw;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 45px 40px;
 
   border-radius: 16px;
 
@@ -101,6 +107,13 @@
   color: white;
 
   animation: fadeInUp 0.8s ease;
+}
+
+@media (min-width: 700px) {
+  .login-card {
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 /* ===== TITLES ===== */
@@ -185,6 +198,104 @@
   font-size: 12px;
 
   opacity: 0.6;
+}
+
+/* ===== PLATFORMS DIVIDER ===== */
+
+.platforms-divider {
+  display: flex;
+  align-items: center;
+  margin: 28px 0 20px;
+}
+
+.platforms-divider::before,
+.platforms-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.2);
+}
+
+.platforms-divider span {
+  padding: 0 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+  color: white;
+}
+
+/* ===== PLATFORMS GRID ===== */
+
+.platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .platforms-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .platforms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .platform-button {
+    min-height: 80px;
+  }
+  .platform-logo {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ===== PLATFORM BUTTON ===== */
+
+.platform-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+  padding: 12px 8px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.platform-button:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.platform-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  margin-bottom: 4px;
+  border-radius: 6px;
+}
+
+.platform-logo.inverse {
+  background: white;
+  padding: 3px;
+}
+
+.platform-name {
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  opacity: 0.9;
+  word-break: break-word;
 }
 
 /* ===== ANIMATION ===== */
