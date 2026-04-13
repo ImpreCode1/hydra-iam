@@ -8,7 +8,7 @@ export default function MicrosoftButton() {
     <button onClick={loginWithMicrosoft} className="microsoft-button">
 
       <img
-        src="https://cdn.dribbble.com/users/177405/screenshots/14714885/downloads/ms%20symbol.svg"
+        src="https://aadcdn.msauth.net/shared/1.0/content/images/favicon_a_eupayfgghqiai7k9sol6lg2.ico"
         alt="Microsoft"
         className="ms-icon"
       />
