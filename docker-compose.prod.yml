@@ -1,0 +1,98 @@
+services:
+  hydra-db:
+    image: postgres:16-alpine
+    container_name: hydra-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hydra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hydra123}
+      POSTGRES_DB: ${POSTGRES_DB:-hydra_iam}
+    volumes:
+      - hydra_db_data:/var/lib/postgresql/data
+    networks:
+      - hydra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hydra}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  hydra-notifications-db:
+    image: postgres:16-alpine
+    container_name: hydra-notifications-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hydra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hydra123}
+      POSTGRES_DB: ${NOTIFICATIONS_DB:-hydra_notifications}
+    volumes:
+      - hydra_notifications_db_data:/var/lib/postgresql/data
+    networks:
+      - hydra-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hydra}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  hydra-core:
+    build:
+      context: ./apps/hydra-core
+      dockerfile: Dockerfile
+    container_name: hydra-core
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    depends_on:
+      hydra-db:
+        condition: service_healthy
+    networks:
+      - hydra-network
+
+  hydra-notifications:
+    build:
+      context: ./apps/hydra-notifications
+      dockerfile: Dockerfile
+    container_name: hydra-notifications
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3001:3000"
+    depends_on:
+      hydra-notifications-db:
+        condition: service_healthy
+    networks:
+      - hydra-network
+
+  hydra-hub:
+    build:
+      context: ./apps/hydra-hub
+      dockerfile: Dockerfile
+    container_name: hydra-hub
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    ports:
+      - "3002:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://hydra-core:3000
+      - NODE_ENV=production
+    depends_on:
+      - hydra-core
+    networks:
+      - hydra-network
+
+networks:
+  hydra-network:
+    driver: bridge
+
+volumes:
+  hydra_db_data:
+  hydra_notifications_db_data:
