@@ -7,7 +7,10 @@ export class MediaService {
 
   savePlatformLogo(file: Express.Multer.File) {
     const filePath = `/uploads/platforms/${file.filename}`;
-    const appUrl = this.configService.get('API_URL', 'http://localhost:3000');
+    const appUrl = this.configService.get(
+      'FRONTEND_URL',
+      'http://localhost:3000',
+    );
 
     return {
       filename: file.filename,
