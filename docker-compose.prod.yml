@@ -7,6 +7,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-hydra}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hydra123}
       POSTGRES_DB: ${POSTGRES_DB:-hydra_iam}
+    ports:
+      - "5432:5432"
     volumes:
       - hydra_db_data:/var/lib/postgresql/data
     networks:
@@ -25,6 +27,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-hydra}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hydra123}
       POSTGRES_DB: ${NOTIFICATIONS_DB:-hydra_notifications}
+    ports:
+      - "5434:5432"
     volumes:
       - hydra_notifications_db_data:/var/lib/postgresql/data
     networks:
