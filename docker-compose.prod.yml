@@ -86,7 +86,6 @@ services:
     ports:
       - "3002:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://hydra-core:3000
       - NODE_ENV=production
     depends_on:
       - hydra-core
