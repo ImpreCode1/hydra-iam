@@ -1,3 +1,7 @@
+/**
+ * Guard de verificación de roles.
+ * Valida que el usuario tenga los roles requeridos para acceder al endpoint.
+ */
 import {
   Injectable,
   CanActivate,
@@ -7,6 +11,11 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 
+/**
+ *RolesGuard - Guard que verifica los roles del usuario.
+ *@description Valida que el usuario posea los roles necesarios definidos en el decorator @Roles.
+ *Permite peticiones OPTIONS (preflight).
+ */
 interface AuthenticatedRequest extends Request {
   user: {
     id: string;
@@ -26,6 +35,11 @@ interface AuthenticatedRequest extends Request {
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
+  /**
+   * Valida si el usuario tiene los roles requeridos.
+   * @param context - Contexto de ejecución de NestJS
+   * @returns true si tiene acceso, lanza ForbiddenException si no
+   */
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 

@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * Componente de lista de plataformas.
+ * Muestra todas las plataformas registradas con búsqueda y acciones.
+ */
 import { useEffect, useState } from "react";
 import {
   getPlatforms,
@@ -9,6 +13,9 @@ import {
 import { EditPlatformModal } from "./EditPlatformModal";
 import { Search, MoreVertical, Edit, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 
+/**
+ * Interfaz de plataforma.
+ */
 type Platform = {
   id: string;
   name: string;
@@ -18,10 +25,18 @@ type Platform = {
   isActive: boolean;
 };
 
+/**
+ * Propiedades del componente.
+ */
 interface PlatformListProps {
   refreshKey?: number;
 }
 
+/**
+ * Componente que muestra la lista de plataformas.
+ * Permite buscar, editar, activar/desactivar y eliminar plataformas.
+ * @param refreshKey - Clave para forzar actualización de datos
+ */
 export function PlatformList({ refreshKey }: PlatformListProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [filteredPlatforms, setFilteredPlatforms] = useState<Platform[]>([]);

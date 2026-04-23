@@ -1,5 +1,13 @@
+/**
+ * Módulo de autenticación para hydra-hub.
+ * Maneja login, logout y refresh de tokens.
+ */
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
+/**
+ * Intenta refresh del token de acceso.
+ * @returns true si el refresh fue exitoso
+ */
 async function refreshToken(): Promise<boolean> {
   try {
     const res = await fetch(`${API_URL}/auth/refresh`, {
@@ -17,6 +25,12 @@ async function refreshToken(): Promise<boolean> {
   }
 }
 
+/**
+ * Realiza una petición a la API con manejo de refresh token.
+ * @param path - Path de la API
+ * @param options - Opciones de fetch
+ * @returns Datos de la respuesta
+ */
 export async function apiFetch(
   path: string,
   options: RequestInit = {}
@@ -67,6 +81,10 @@ export async function apiFetch(
   return response.json()
 }
 
+/**
+ * Obtiene el usuario actual autenticado.
+ * @returns Datos del usuario o null si no está autenticado
+ */
 export async function getCurrentUser() {
   try {
     return await apiFetch("/auth/me")
@@ -75,10 +93,16 @@ export async function getCurrentUser() {
   }
 }
 
+/**
+ * Redirige al login de Microsoft para autenticación.
+ */
 export function loginWithMicrosoft() {
   window.location.href = `${API_URL}/auth/microsoft/login`
 }
 
+/**
+ * Cierra la sesión del usuario y redirige al login.
+ */
 export async function logout() {
   try {
     await apiFetch("/auth/logout", {

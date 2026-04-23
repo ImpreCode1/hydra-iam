@@ -1,3 +1,7 @@
+/**
+ * Servicio de gestión de plataformas.
+ * Maneja operaciones CRUD, acceso a plataformas y generación de tokens de acceso.
+ */
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
@@ -5,6 +9,12 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { NotificationsService } from '../notifications/notifications.service';
+
+/**
+ *PlatformsService - Servicio para gestionar plataformas del sistema.
+ *@description Provee métodos para crear, listar, actualizar y eliminar plataformas.
+ *También maneja el acceso a plataformas y la generación de tokens de acceso.
+ */
 
 type RoleEntity = {
   id: string;
@@ -40,6 +50,11 @@ export class PlatformsService {
     private readonly config: ConfigService,
   ) {}
 
+  /**
+   * Crea una nueva plataforma en el sistema.
+   * @param data - Datos de la plataforma (name, code, url, logoUrl, description)
+   * @returns La plataforma creada con las credenciales del servicio
+   */
   async create(data: {
     name: string;
     code: string;
@@ -85,6 +100,10 @@ export class PlatformsService {
     return result;
   }
 
+  /**
+   * Obtiene todas las plataformas activas del sistema.
+   * @returns Lista de plataformas ordenadas alfabéticamente
+   */
   async findAll() {
     return this.prisma.platform.findMany({
       where: { deletedAt: null },
@@ -92,6 +111,11 @@ export class PlatformsService {
     });
   }
 
+  /**
+   * Busca una plataforma por su ID incluyendo los roles asociados.
+   * @param id - ID de la plataforma
+   * @returns La plataforma con sus roles
+   */
   async findById(id: string) {
     return this.prisma.platform.findUnique({
       where: { id },
@@ -103,6 +127,12 @@ export class PlatformsService {
     });
   }
 
+  /**
+   * Actualiza los datos de una plataforma.
+   * @param id - ID de la plataforma a actualizar
+   * @param data - Datos a actualizar
+   * @returns La plataforma actualizada
+   */
   async update(id: string, data: any) {
     return this.prisma.platform.update({
       where: { id },
@@ -111,6 +141,11 @@ export class PlatformsService {
     });
   }
 
+  /**
+   * Elimina una plataforma de forma lógica (soft delete).
+   * @param id - ID de la plataforma a eliminar
+   * @returns La plataforma con deletedAt establecido
+   */
   async softDelete(id: string) {
     return this.prisma.platform.update({
       where: { id },
@@ -118,6 +153,12 @@ export class PlatformsService {
     });
   }
 
+  /**
+   * Asigna un rol a una plataforma.
+   * @param platformId - ID de la plataforma
+   * @param roleId - ID del rol a asignar
+   * @returns La relación plataforma-rol creada
+   */
   async assignRole(platformId: string, roleId: string) {
     return this.prisma.platformRole.create({
       data: {
@@ -127,6 +168,12 @@ export class PlatformsService {
     });
   }
 
+  /**
+   * Remueve un rol de una plataforma.
+   * @param platformId - ID de la plataforma
+   * @param roleId - ID del rol a remover
+   * @returns La relación eliminada
+   */
   async removeRole(platformId: string, roleId: string) {
     return this.prisma.platformRole.delete({
       where: {
@@ -138,6 +185,11 @@ export class PlatformsService {
     });
   }
 
+  /**
+   * Obtiene los roles asociados a una plataforma.
+   * @param platformId - ID de la plataforma
+   * @returns Lista de roles de la plataforma
+   */
   async getRoles(platformId: string) {
     return this.prisma.platformRole.findMany({
       where: { platformId },
@@ -145,6 +197,12 @@ export class PlatformsService {
     });
   }
 
+  /**
+   * Obtiene las plataformas accesibles para un usuario.
+   * Considera roles directos, roles del cargo y roles del grupo.
+   * @param userId - ID del usuario
+   * @returns Lista de plataformas accesibles
+   */
   async getAccessiblePlatforms(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -239,10 +297,21 @@ export class PlatformsService {
     return Array.from(platformsMap.values());
   }
 
+  /**
+   * Genera un secret aleatorio para el cliente de servicio.
+   * @returns Secret aleatorio de 64 caracteres
+   */
   private generateRandomSecret(): string {
     return randomBytes(32).toString('hex'); // 64 caracteres seguros
   }
 
+  /**
+   * Genera un token de acceso para una plataforma específica.
+   * @param userId - ID del usuario
+   * @param platformCode - Código de la plataforma
+   * @returns URL de redirección y token de acceso
+   * @throws ForbiddenException si el usuario no tiene acceso a la plataforma
+   */
   async generatePlatformAccessToken(userId: string, platformCode: string) {
     const accessiblePlatforms = await this.getAccessiblePlatforms(userId);
 

@@ -1,9 +1,20 @@
+/**
+ * Cliente de API para hydra-hub.
+ * Maneja requests HTTP con soporte para refresh token automático.
+ */
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+/**
+ * Opciones para apiFetch.
+ */
 type ApiFetchOptions = RequestInit & {
   isFormData?: boolean;
 };
 
+/**
+ * Intenta refresh del token de acceso.
+ * @returns true si el refresh fue exitoso
+ */
 async function refreshToken(): Promise<boolean> {
   try {
     const res = await fetch(`${API_URL}/auth/refresh`, {
@@ -17,6 +28,13 @@ async function refreshToken(): Promise<boolean> {
   }
 }
 
+/**
+ * Realiza una petición a la API.
+ * Maneja automáticamente refresh token en caso de 401.
+ * @param path - Path de la API (sin dominio)
+ * @param options - Opciones de fetch
+ * @returns Respuesta de la API
+ */
 export async function apiFetch(
   path: string,
   options: ApiFetchOptions = {}

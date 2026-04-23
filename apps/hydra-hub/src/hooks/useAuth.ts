@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import { getCurrentUser } from "@/modules/auth/api"
 
+/**
+ * Interfaz de plataforma.
+ */
 interface Platform {
   id: string
   name: string
@@ -10,6 +13,9 @@ interface Platform {
   url: string
 }
 
+/**
+ * Interfaz de usuario.
+ */
 interface User {
   id: string
   name: string
@@ -19,6 +25,11 @@ interface User {
   platforms: Platform[]
 }
 
+/**
+ * Hook para obtener el usuario autenticado.
+ * Carga el usuario actual y maneja el estado de autenticación.
+ * @returns Objeto con user, loading y isAuthenticated
+ */
 export function useAuth() {
 
   const [user, setUser] = useState<User | null>(null)

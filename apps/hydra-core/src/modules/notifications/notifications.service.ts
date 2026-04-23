@@ -1,7 +1,17 @@
+/**
+ * Servicio de notificaciones.
+ * Maneja la comunicación con el servicio de notificaciones.
+ */
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
+
+/**
+ *NotificationsService - Servicio para gestionar notificaciones del sistema.
+ *@description Provee métodos para crear, obtener y marcar notificaciones como leídas.
+ *Se comunica con el servicio externo de notificaciones (hydra-notifications).
+ */
 
 @Injectable()
 export class NotificationsService {
@@ -15,6 +25,10 @@ export class NotificationsService {
     this.notificationsUrl = this.config.get<string>('NOTIFICATIONS_SERVICE_URL') ?? 'http://localhost:3001';
   }
 
+  /**
+   * Genera los headers de autenticación para el servicio de notificaciones.
+   * @returns Headers con token JWT de servicio
+   */
   private getHeaders() {
     const token = this.jwtService.sign(
       { sub: 'hydra-core', client_id: 'hydra-core', type: 'service' },
@@ -26,6 +40,11 @@ export class NotificationsService {
     };
   }
 
+  /**
+   * Crea una nueva notificación para un usuario.
+   * @param dto - Datos de la notificación (userId, type, title, message)
+   * @returns La notificación creada
+   */
   async createNotification(dto: {
     userId: string;
     type: string;
@@ -45,6 +64,11 @@ export class NotificationsService {
     }
   }
 
+  /**
+   * Notifica al usuario cuando accede a una plataforma.
+   * @param userId - ID del usuario
+   * @param platformName - Nombre de la plataforma
+   */
   async notifyPlatformAccess(userId: string, platformName: string) {
     return this.createNotification({
       userId,
@@ -54,6 +78,11 @@ export class NotificationsService {
     });
   }
 
+  /**
+   * Notifica al usuario cuando tiene acceso a una nueva plataforma.
+   * @param userId - ID del usuario
+   * @param platformName - Nombre de la nueva plataforma
+   */
   async notifyNewPlatform(userId: string, platformName: string) {
     return this.createNotification({
       userId,
@@ -63,6 +92,11 @@ export class NotificationsService {
     });
   }
 
+  /**
+   * Notifica al usuario cuando se le asigna un nuevo rol.
+   * @param userId - ID del usuario
+   * @param roleName - Nombre del rol asignado
+   */
   async notifyRoleAssigned(userId: string, roleName: string) {
     return this.createNotification({
       userId,
@@ -72,6 +106,12 @@ export class NotificationsService {
     });
   }
 
+  /**
+   * Notifica al administrador cuando se crea una nueva plataforma.
+   * @param userId - ID del administrador
+   * @param platformName - Nombre de la plataforma creada
+   * @param clientId - Client ID del servicio
+   */
   async notifyNewPlatformCreated(
     userId: string,
     platformName: string,
@@ -85,6 +125,13 @@ export class NotificationsService {
     });
   }
 
+  /**
+   * Obtiene las notificaciones de un usuario con paginación.
+   * @param userId - ID del usuario
+   * @param limit - Límite de resultados
+   * @param offset - Offset para paginación
+   * @returns Lista de notificaciones
+   */
   async getUserNotifications(userId: string, limit: number, offset: number) {
     try {
       const response = await axios.get(
@@ -98,6 +145,11 @@ export class NotificationsService {
     }
   }
 
+  /**
+   * Obtiene el conteo de notificaciones no leídas de un usuario.
+   * @param userId - ID del usuario
+   * @returns Objeto con el conteo
+   */
   async getUnreadCount(userId: string) {
     try {
       const response = await axios.get(
@@ -111,6 +163,12 @@ export class NotificationsService {
     }
   }
 
+  /**
+   * Marca una notificación como leída por un usuario.
+   * @param notificationId - ID de la notificación
+   * @param userId - ID del usuario
+   * @returns La notificación actualizada
+   */
   async markAsReadByUser(notificationId: string, userId: string) {
     try {
       const response = await axios.put(
@@ -125,6 +183,10 @@ export class NotificationsService {
     }
   }
 
+  /**
+   * Marca todas las notificaciones de un usuario como leídas.
+   * @param userId - ID del usuario
+   */
   async markAllAsReadByUser(userId: string) {
     try {
       const response = await axios.put(

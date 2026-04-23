@@ -1,9 +1,17 @@
 "use client";
 
+/**
+ * Componente de formulario para crear plataformas.
+ * Maneja la creación de nuevas plataformas con logo opcional.
+ */
 import { useState, useEffect } from "react";
 import { createPlatform } from "@/modules/platforms/api";
 import { uploadPlatformLogo } from "@/modules/media/api";
 
+/**
+ * Formulario para crear una nueva plataforma.
+ * @param onCreated - Callback ejecutado después de crear la plataforma
+ */
 export function PlatformForm({ onCreated }: { onCreated: () => void }) {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
