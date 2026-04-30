@@ -16,6 +16,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PositionsModule } from './modules/positions/positions.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PlatformsModule } from './modules/platforms/platforms.module';
+import { ExternalSitesModule } from './modules/external-sites/external-sites.module';
 import { MediaModule } from './modules/media/media.module';
 import { PositionGroupsModule } from './modules/position-groups/position-groups.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -32,6 +33,7 @@ import { join } from 'path';
     PositionsModule,
     RolesModule,
     PlatformsModule,
+    ExternalSitesModule,
     MediaModule,
     PositionGroupsModule,
     NotificationsModule,
