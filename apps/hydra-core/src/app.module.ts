@@ -19,6 +19,7 @@ import { PlatformsModule } from './modules/platforms/platforms.module';
 import { MediaModule } from './modules/media/media.module';
 import { PositionGroupsModule } from './modules/position-groups/position-groups.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ExternalSitesModule } from './modules/external-sites/external-sites.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -35,6 +36,7 @@ import { join } from 'path';
     MediaModule,
     PositionGroupsModule,
     NotificationsModule,
+    ExternalSitesModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',

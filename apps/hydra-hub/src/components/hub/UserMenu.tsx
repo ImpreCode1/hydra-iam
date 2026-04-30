@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { logout } from "@/modules/auth/api"
-import { ChevronDown, LogOut, Users, Shield, LayoutGrid, Briefcase, User } from "lucide-react"
+import { ChevronDown, LogOut, Users, Shield, LayoutGrid, Briefcase, User, ExternalLink } from "lucide-react"
 
 export function UserMenu() {
   const { user } = useAuth()
@@ -108,6 +108,14 @@ export function UserMenu() {
                 >
                   <LayoutGrid className="w-4 h-4" />
                   Plataformas
+                </button>
+
+                <button
+                  onClick={() => router.push("/admin/external-sites")}
+                  className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-white/80 hover:bg-white/10 rounded-lg"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Sitios Externos
                 </button>
 
               </div>
