@@ -8,6 +8,7 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
+
 import { ExternalSitesService } from './external-sites.service';
 import { CreateExternalSiteDto } from './dto/create-external-site.dto';
 import { UpdateExternalSiteDto } from './dto/update-external-site.dto';
@@ -15,47 +16,70 @@ import { JwtAuthGuard } from '../auth/guards/JwtAuthGuard.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/guards/roles.decorator';
 
+/**
+ * ExternalSitesController
+ * @description Gestión de sitios externos (links, accesos, etc.)
+ * Requiere autenticación JWT y rol ADMIN para todos los endpoints
+ */
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('external-sites')
 export class ExternalSitesController {
   constructor(private readonly externalSitesService: ExternalSitesService) {}
 
+  /**
+   * Lista todos los sitios activos
+   */
+  @Roles('ADMIN')
   @Get('active')
-  findAllActive() {
+  async findAllActive() {
     return this.externalSitesService.findAllActive();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  /**
+   * Crea un nuevo sitio externo
+   */
   @Roles('ADMIN')
   @Post()
-  create(@Body() body: CreateExternalSiteDto) {
+  async create(@Body() body: CreateExternalSiteDto) {
     return this.externalSitesService.create(body);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  /**
+   * Lista todos los sitios (incluyendo inactivos)
+   */
   @Roles('ADMIN')
   @Get()
-  findAll() {
+  async findAll() {
     return this.externalSitesService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  /**
+   * Obtiene un sitio por ID
+   */
   @Roles('ADMIN')
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.externalSitesService.findById(id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  /**
+   * Actualiza un sitio
+   */
   @Roles('ADMIN')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: UpdateExternalSiteDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() body: UpdateExternalSiteDto,
+  ) {
     return this.externalSitesService.update(id, body);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  /**
+   * Eliminación lógica (soft delete)
+   */
   @Roles('ADMIN')
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.externalSitesService.softDelete(id);
   }
 }

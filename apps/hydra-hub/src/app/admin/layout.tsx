@@ -3,7 +3,7 @@
 import { AdminGuard } from "@/components/auth/AdminGuard";
 import { HubLayout } from "@/components/layout/HubLayout";
 import Link from "next/link";
-import { Users, Briefcase, Layers, Shield, Globe, Menu, X } from "lucide-react";
+import { Users, Briefcase, Layers, Shield, Globe, Menu, X, LayoutIcon } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/groups", label: "Grupos", icon: Layers },
   { href: "/admin/roles", label: "Roles", icon: Shield },
   { href: "/admin/platforms", label: "Plataformas", icon: Globe },
+  { href: "/admin/external-sites", label: "Sitios externos", icon: LayoutIcon },
 ];
 
 export default function AdminLayout({
