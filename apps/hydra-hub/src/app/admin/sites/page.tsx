@@ -1,6 +1,6 @@
 "use client"
 
-import { ExternalSitesList } from "@/components/external-sites/ExternalSitesList"
+import { ExternalSitesList } from "@/components/sites/ExternalSitesList"
 
 export default function ExternalSitesPage() {
   return (

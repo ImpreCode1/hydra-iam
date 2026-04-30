@@ -6,7 +6,7 @@ import {
   deleteExternalSite,
   toggleExternalSiteStatus,
   ExternalSite,
-} from "@/modules/external-sites/api";
+} from "@/modules/sites/api";
 import { ExternalSiteForm } from "./ExternalSiteForm";
 import { Search, MoreVertical, Edit, Trash2, ToggleLeft, ToggleRight, ExternalLink } from "lucide-react";
 

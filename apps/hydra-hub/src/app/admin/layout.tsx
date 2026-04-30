@@ -12,7 +12,7 @@ const navItems = [
   { href: "/admin/groups", label: "Grupos", icon: Layers },
   { href: "/admin/roles", label: "Roles", icon: Shield },
   { href: "/admin/platforms", label: "Plataformas", icon: Globe },
-  { href: "/admin/external-sites", label: "Sitios Externos", icon: ExternalLink },
+  { href: "/admin/sites", label: "Sitios Externos", icon: ExternalLink },
 ];
 
 export default function AdminLayout({

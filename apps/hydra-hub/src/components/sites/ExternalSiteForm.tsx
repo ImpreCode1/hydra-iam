@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createExternalSite, updateExternalSite, ExternalSite } from "@/modules/external-sites/api";
+import { createExternalSite, updateExternalSite, ExternalSite } from "@/modules/sites/api";
 import { X } from "lucide-react";
 
 interface ExternalSiteFormProps {

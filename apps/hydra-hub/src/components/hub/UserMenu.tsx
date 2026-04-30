@@ -111,7 +111,7 @@ export function UserMenu() {
                 </button>
 
                 <button
-                  onClick={() => router.push("/admin/external-sites")}
+                  onClick={() => router.push("/admin/sites")}
                   className="flex items-center gap-2 w-full text-left px-2.5 py-2 text-sm text-white/80 hover:bg-white/10 rounded-lg"
                 >
                   <ExternalLink className="w-4 h-4" />

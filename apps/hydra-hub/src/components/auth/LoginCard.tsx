@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import MicrosoftButton from "./MicrosoftButton"
-import { getExternalSitesActive, ExternalSite } from "@/modules/external-sites/api";
+import { getExternalSitesActive, ExternalSite } from "@/modules/sites/api";
 
 export default function LoginCard() {
   const [externalSites, setExternalSites] = useState<ExternalSite[]>([]);
