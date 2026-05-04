@@ -284,6 +284,19 @@
   border-radius: 6px;
 }
 
+.platform-logo-placeholder {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
 .platform-logo.inverse {
   background: white;
   padding: 3px;
