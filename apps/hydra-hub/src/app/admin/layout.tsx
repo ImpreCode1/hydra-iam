@@ -37,8 +37,8 @@ export default function AdminLayout({
 
           {/* Sidebar */}
           <aside className={`
-            fixed lg:static inset-y-0 left-0 z-50
-            w-64 bg-white border border-slate-200 rounded-xl p-4 h-fit
+            fixed lg:sticky lg:top-20 inset-y-0 left-0 z-50
+            w-64 bg-white border border-slate-200 rounded-xl p-4
             transform transition-transform duration-300 ease-in-out
             lg:transform-none lg:block
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
