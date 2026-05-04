@@ -1,5 +1,6 @@
 import { HubLayout } from "@/components/layout/HubLayout";
 import { PlatformGrid } from "@/components/hub/PlatformGrid";
+import { ExternalSitesFab } from "@/components/hub/ExternalSitesFab";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 
 export default function DashboardPage() {
@@ -9,6 +10,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto">
           <PlatformGrid />
         </div>
+        <ExternalSitesFab />
       </HubLayout>
     </AuthGuard>
   );

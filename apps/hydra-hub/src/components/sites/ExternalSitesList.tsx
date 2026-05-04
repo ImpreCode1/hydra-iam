@@ -177,6 +177,7 @@ export function ExternalSitesList({ refreshKey }: ExternalSitesListProps) {
                     <button
                       onClick={() => {
                         setSelectedSite(site);
+                        setShowForm(true);
                         setOpenMenu(null);
                       }}
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 
