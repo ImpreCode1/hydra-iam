@@ -51,6 +51,8 @@ services:
       - NODE_ENV=production
     ports:
       - "3000:3000"
+    volumes:
+      - ./apps/hydra-core/uploads:/usr/src/app/uploads
     depends_on:
       hydra-db:
         condition: service_healthy
