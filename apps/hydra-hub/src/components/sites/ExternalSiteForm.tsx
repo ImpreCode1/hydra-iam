@@ -101,7 +101,6 @@ export function ExternalSiteForm({ site, onClose, onSave }: ExternalSiteFormProp
               URL del Logo
             </label>
             <input
-              type="url"
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm
